@@ -262,6 +262,17 @@
   gap: var(--spacing-6);
 }
 
+.grid-main > * {
+  min-width: 0;
+  width: 100%;
+}
+
+.dashboard-list-section,
+.dashboard-controls-section {
+  min-width: 0;
+  width: 100%;
+}
+
 @media (min-width: 1024px) {
   .grid-main {
     grid-template-columns: 1.4fr 1fr;

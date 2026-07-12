@@ -1,6 +1,7 @@
 import { STRINGS } from '../data/strings.js';
 import { getCurrentUser, getUserSubscription } from '../utils/supabase.js';
 import { renderAuthModal } from '../components/AuthModal.js';
+import { showPaymentModal } from '../components/PaymentModal.js';
 
 export async function renderPricingPage(container) {
   const currentUser = await getCurrentUser();
@@ -140,9 +141,10 @@ export async function renderPricingPage(container) {
             renderPricingPage(container);
           });
         } else {
-          // Logged in but not Pro -> Trigger payment flow (handled in P4)
-          // Dispatch a custom event to show payment modal
-          window.dispatchEvent(new CustomEvent('open-payment-modal'));
+          // Logged in but not Pro -> Trigger payment flow directly
+          showPaymentModal(() => {
+            renderPricingPage(container);
+          });
         }
       });
     }

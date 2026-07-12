@@ -1,5 +1,6 @@
 import { supabase } from './supabase.js';
 import { db, getAllDebts, getDeletedDebts, clearDeletedDebts } from './storage.js';
+import { isProUser } from './premium.js';
 
 let isSyncing = false;
 
@@ -19,6 +20,12 @@ export function getSyncStatus() {
 export async function syncAll(userId) {
   if (!userId) {
     return { success: false, message: 'User not logged in' };
+  }
+
+  const isPro = await isProUser();
+  if (!isPro) {
+    console.log('User is on Free plan. Cloud sync disabled.');
+    return { success: false, message: 'Fitur sinkronisasi cloud hanya untuk member Pro.' };
   }
 
   if (isSyncing) {

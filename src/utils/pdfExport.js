@@ -1,8 +1,10 @@
 import html2pdf from 'html2pdf.js';
 import { formatRupiah } from './format.js';
+import { isProUser } from './premium.js';
 
-export function exportToPdf(debts, strategy, extraPayment, payoffData) {
+export async function exportToPdf(debts, strategy, extraPayment, payoffData) {
   const { schedule, totalInterest, months, isInfinite } = payoffData;
+
 
   if (isInfinite || !schedule || schedule.length === 0) {
     alert('Simulasi tidak dapat diexport karena status tidak valid atau kosong.');
@@ -24,6 +26,8 @@ export function exportToPdf(debts, strategy, extraPayment, payoffData) {
   const totalPrincipal = debts.reduce((sum, d) => sum + (d.isPaidOff ? 0 : d.principal), 0);
   const freeDebtDate = schedule[schedule.length - 1].month;
 
+  const isPro = await isProUser();
+
   // Build the print content
   const printDiv = document.createElement('div');
   printDiv.id = 'pdf-print-template';
@@ -31,6 +35,7 @@ export function exportToPdf(debts, strategy, extraPayment, payoffData) {
   printDiv.style.fontFamily = 'Inter, sans-serif';
   printDiv.style.color = '#333';
   printDiv.style.backgroundColor = '#fff';
+  printDiv.style.position = 'relative';
 
   printDiv.innerHTML = `
     <!-- Header -->
@@ -111,10 +116,12 @@ export function exportToPdf(debts, strategy, extraPayment, payoffData) {
       <p style="margin:0;">Dokumen ini digenerate secara otomatis oleh <strong>DebtClear Planner</strong>.</p>
       <p style="margin:2px 0 0 0; font-size:9px;">Semua data disimpan secara lokal pada perangkat Anda.</p>
       
+      ${!isPro ? `
       <!-- Watermark text -->
-      <div style="position:absolute; top:-120px; left:50%; transform:translateX(-50%) rotate(-15deg); font-size:36px; font-weight:900; color:rgba(0,0,0,0.03); white-space:nowrap; pointer-events:none; letter-spacing:5px;">
+      <div style="position:absolute; top:-180px; left:50%; transform:translateX(-50%) rotate(-20deg); font-size:40px; font-weight:900; color:rgba(219,68,85,0.08); white-space:nowrap; pointer-events:none; letter-spacing:4px; font-family: sans-serif;">
         DEBTCLEAR FREE VERSION
       </div>
+      ` : ''}
     </div>
   `;
 

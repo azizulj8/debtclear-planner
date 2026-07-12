@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">DebtClear</string>
+    <string name="title_activity_main">DebtClear</string>
+    <string name="package_name">com.debtclear.app</string>
+    <string name="custom_url_scheme">com.debtclear.app</string>
+</resources>

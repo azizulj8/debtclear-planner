@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  debtclear:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: debtclear-web
+    restart: unless-stopped
+    ports:
+      - '3100:80'

@@ -27,6 +27,19 @@ export async function signIn(email, password) {
 }
 
 /**
+ * Sign in with Google OAuth
+ * @returns {Promise<Object>} Supabase auth response
+ */
+export async function signInWithGoogle() {
+  return await supabase.auth.signInWithOAuth({ 
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin
+    }
+  });
+}
+
+/**
  * Sign out the current user
  * @returns {Promise<Object>} Supabase response
  */

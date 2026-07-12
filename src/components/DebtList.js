@@ -26,7 +26,7 @@ export async function renderDebtList(container) {
     const sortedDebts = sortDebts(debts, currentSort);
 
     container.innerHTML = `
-      <div class="container mt-4 mb-12">
+      <div class="mt-4 mb-12">
         <!-- Dashboard Header / Overview -->
         <div class="card overview-card mb-6">
           <div class="flex justify-between items-center">

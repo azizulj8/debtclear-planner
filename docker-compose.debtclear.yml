@@ -9,4 +9,9 @@ services:
     restart: unless-stopped
     ports:
       - '3100:80'
-    # To be added to existing networks/proxy setup in production
+    networks:
+      - caddy-proxy # <-- Hubungkan ke jaringan caddy
+
+networks:
+  caddy-proxy:
+    external: true

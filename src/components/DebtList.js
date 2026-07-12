@@ -36,9 +36,12 @@ export async function renderDebtList(container) {
               <span class="text-secondary">${STRINGS.LIST_TOTAL_DEBT}</span>
               <h1 class="total-debt-amount mt-1 text-primary">${formatRupiah(totalPrincipal)}</h1>
             </div>
-            <button class="btn btn--primary" id="btn-add-debt-dashboard">
-              ${STRINGS.LIST_BTN_ADD}
-            </button>
+            <div class="flex gap-2 flex-wrap" style="justify-content: flex-end;">
+              <button class="btn btn--primary" id="btn-quick-add-dashboard">⚡ Catat Cepat</button>
+              <button class="btn btn--secondary" id="btn-add-debt-dashboard">
+                ${STRINGS.LIST_BTN_ADD}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -72,11 +75,18 @@ export async function renderDebtList(container) {
   };
 
   const setupEventListeners = () => {
-    // Add Debt Button
+    // Add Debt Buttons
     const btnAdd = container.querySelector('#btn-add-debt-dashboard');
     if (btnAdd) {
       btnAdd.addEventListener('click', () => {
         window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/add-debt' } }));
+      });
+    }
+
+    const btnQuickAdd = container.querySelector('#btn-quick-add-dashboard');
+    if (btnQuickAdd) {
+      btnQuickAdd.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/quick-add' } }));
       });
     }
 
@@ -140,14 +150,20 @@ function renderEmptyState(container) {
       </div>
       <h3 class="mb-2" style="font-weight: 600;">${STRINGS.LIST_EMPTY_STATE}</h3>
       <p class="text-secondary mb-6">Mulai catat utang Anda sekarang untuk menyusun rencana pelunasan cerdas.</p>
-      <button class="btn btn--primary" id="btn-add-debt-empty">
-        ${STRINGS.LIST_EMPTY_CTA}
-      </button>
+      <div class="flex gap-2 justify-center flex-wrap">
+        <button class="btn btn--primary" id="btn-quick-add-empty">⚡ Catat Cepat Pinjaman</button>
+        <button class="btn btn--secondary" id="btn-add-debt-empty">
+          ${STRINGS.LIST_EMPTY_CTA}
+        </button>
+      </div>
     </div>
   `;
 
   container.querySelector('#btn-add-debt-empty').addEventListener('click', () => {
     window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/add-debt' } }));
+  });
+  container.querySelector('#btn-quick-add-empty').addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/quick-add' } }));
   });
 }
 

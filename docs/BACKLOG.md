@@ -18,7 +18,7 @@ Fondasi value loop — dibangun paling dulu karena membuat pencatatan terasa ada
 - Riwayat pembayaran (dari tabel `payments`): tanggal bayar & nominal per bulan.
 - Progress pelunasan (mis. "3/6 cicilan, sisa Rp 2,4 jt").
 
-### 3. Quick-Add "Bahasa Pinjol"
+### 3. Quick-Add "Bahasa Pinjol" — ✅ SHIPPED 12 Jul 2026
 Form capture 15 detik dengan 3 field sesuai cara pinjol berkomunikasi:
 - *Pinjam berapa, bayar berapa, kapan* → bunga & tenor dihitung otomatis.
 - Menggantikan keharusan tahu "bunga tahunan %" yang tidak pernah disebut pinjol.

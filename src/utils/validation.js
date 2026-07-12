@@ -28,11 +28,12 @@ export function validateDebtForm(data) {
     errors.principal = STRINGS.ERR_INVALID_PRINCIPAL
   }
 
+  // Ceiling 600%: annualized daily pinjol rates legitimately exceed 100%/yr
   if (
     typeof data.interestRate !== 'number' ||
     isNaN(data.interestRate) ||
     data.interestRate < 0 ||
-    data.interestRate > 100
+    data.interestRate > 600
   ) {
     errors.interestRate = STRINGS.ERR_INVALID_INTEREST
   }

@@ -43,7 +43,7 @@ export const STRINGS = {
   ERR_MAX_LENGTH_NAME: 'Nama utang maksimal 100 karakter.',
   ERR_REQUIRED_TYPE: 'Silakan pilih jenis utang.',
   ERR_INVALID_PRINCIPAL: 'Sisa pokok harus berupa angka lebih dari 0.',
-  ERR_INVALID_INTEREST: 'Bunga tahunan harus berupa angka 0-100.',
+  ERR_INVALID_INTEREST: 'Bunga tahunan harus berupa angka 0-600.',
   ERR_INVALID_MIN_PAYMENT: 'Cicilan minimum harus berupa angka lebih dari 0.',
   ERR_INVALID_DUE_DATE: 'Tanggal jatuh tempo harus antara 1-31.',
   ERR_INVALID_TENOR: 'Tenor harus berupa angka bulan antara 1-600.',

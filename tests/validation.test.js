@@ -49,7 +49,7 @@ describe('Validation Utils', () => {
       expect(resultNegative.isValid).toBe(false)
       expect(resultNegative.errors.interestRate).toBe(STRINGS.ERR_INVALID_INTEREST)
 
-      const resultTooHigh = validateDebtForm({ ...getValidData(), interestRate: 101 })
+      const resultTooHigh = validateDebtForm({ ...getValidData(), interestRate: 601 })
       expect(resultTooHigh.isValid).toBe(false)
       expect(resultTooHigh.errors.interestRate).toBe(STRINGS.ERR_INVALID_INTEREST)
     })

@@ -45,14 +45,22 @@ export async function renderDashboardPage(container) {
   // Base shell
   container.innerHTML = `
     <header class="app-header">
-      <div class="container flex justify-between items-center">
+      <div class="container flex justify-between items-center relative">
         <div class="brand-logo" id="logo-dashboard" style="cursor: pointer;">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
           </svg>
           ${STRINGS.APP_NAME}
         </div>
-        <div class="flex items-center gap-3">
+        
+        <!-- Burger Button for Mobile -->
+        <button type="button" class="burger-menu-btn" id="burger-menu-trigger" aria-label="Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <div class="nav-menu" id="nav-menu-container">
           ${authSectionHTML}
           <button type="button" class="btn btn--secondary btn--sm" id="btn-csv-trigger" style="gap:var(--spacing-1);">
             📂 Import CSV
@@ -60,12 +68,13 @@ export async function renderDashboardPage(container) {
           <button type="button" class="btn btn--secondary btn--sm" id="btn-pdf-trigger" style="gap:var(--spacing-1);">
             📄 Export PDF
           </button>
-          <button type="button" class="btn btn--secondary" id="btn-theme-toggle" style="padding: 6px 10px;">
+          <button type="button" class="btn btn--secondary btn--sm" id="btn-theme-toggle" style="padding: 6px 10px;">
             ${currentTheme === 'light' ? '🌙' : '☀️'}
           </button>
         </div>
       </div>
     </header>
+
 
 
     <main class="container mt-4 mb-12">
@@ -85,6 +94,33 @@ export async function renderDashboardPage(container) {
       </div>
     </main>
   `;
+
+  // Attach Burger Menu Toggle
+  const burgerTrigger = container.querySelector('#burger-menu-trigger');
+  const navMenu = container.querySelector('#nav-menu-container');
+  if (burgerTrigger && navMenu) {
+    burgerTrigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      burgerTrigger.classList.toggle('active');
+      navMenu.classList.toggle('active');
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!navMenu.contains(e.target) && e.target !== burgerTrigger) {
+        burgerTrigger.classList.remove('active');
+        navMenu.classList.remove('active');
+      }
+    });
+
+    // Close menu when clicking any button inside
+    navMenu.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        burgerTrigger.classList.remove('active');
+        navMenu.classList.remove('active');
+      });
+    });
+  }
 
   // Attach Auth handlers
   const authTrigger = container.querySelector('#btn-auth-trigger');

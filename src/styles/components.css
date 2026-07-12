@@ -290,9 +290,10 @@
 }
 
 .btn-strategy-toggle--active {
-  background-color: var(--color-primary);
+  background-color: rgba(0, 230, 118, 0.1);
   border-color: var(--color-primary);
-  color: var(--color-surface) !important;
+  color: var(--color-primary) !important;
+  box-shadow: var(--shadow-glow);
 }
 
 /* Custom Range Slider */

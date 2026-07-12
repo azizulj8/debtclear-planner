@@ -30,6 +30,7 @@ export async function renderDashboardPage(container) {
   const authSectionHTML = currentUser 
     ? `
       <div class="flex items-center gap-2" style="font-size: var(--font-size-sm);">
+        <span id="sync-indicator" title="Tersinkronisasi dengan cloud" style="cursor: help; opacity: 0.8; font-size: 1.1rem; display: inline-block;">☁️</span>
         <span class="text-secondary" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${currentUser.email}</span>
         <button type="button" class="btn btn--secondary btn--sm" id="btn-auth-logout" style="padding: 4px 8px;">Keluar</button>
       </div>
@@ -39,6 +40,7 @@ export async function renderDashboardPage(container) {
         🔑 Masuk / Daftar
       </button>
     `;
+
 
   // Base shell
   container.innerHTML = `
@@ -186,4 +188,47 @@ export async function renderDashboardPage(container) {
 
   // Run initial simulation
   updateSimulation();
+
+  // Listen to cloud sync state changes to update the UI indicator
+  if (typeof window !== 'undefined') {
+    window.addEventListener('sync-state-change', (e) => {
+      const { syncing, error } = e.detail;
+      const indicator = container.querySelector('#sync-indicator');
+      if (indicator) {
+        if (syncing) {
+          indicator.textContent = '🔄';
+          indicator.title = 'Sedang mensinkronisasi dengan cloud...';
+          indicator.classList.add('spinning');
+          // Add inline rotation style since keyframe animation might not be defined
+          indicator.style.animation = 'spin 1s linear infinite';
+        } else if (error) {
+          indicator.textContent = '⚠️';
+          indicator.title = 'Sinkronisasi gagal. Cek koneksi internet Anda.';
+          indicator.style.animation = 'none';
+        } else {
+          indicator.textContent = '☁️';
+          indicator.title = 'Tersinkronisasi dengan cloud';
+          indicator.style.animation = 'none';
+        }
+      }
+    });
+  }
+
+  // Trigger background sync on page load if authenticated
+  if (currentUser) {
+    import('../utils/sync.js').then(async ({ syncAll }) => {
+      const result = await syncAll(currentUser.id);
+      if (result.success) {
+        // Sync completed. Refresh the debts list and re-run simulation to show new/merged data
+        try {
+          debts = await getAllDebts();
+          updateSimulation();
+          renderDebtList(listContainer);
+        } catch (err) {
+          console.error('Failed to reload debts after sync:', err);
+        }
+      }
+    });
+  }
 }
+

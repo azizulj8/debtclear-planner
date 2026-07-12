@@ -1,5 +1,6 @@
 import { STRINGS } from '../data/strings.js';
 import { formatRupiah } from '../utils/format.js';
+import { getPaidInstallments, getRemainingObligation } from '../utils/obligation.js';
 
 /**
  * Renders a single debt card.
@@ -12,11 +13,16 @@ import { formatRupiah } from '../utils/format.js';
  * @param {number} debt.minPayment - Minimum monthly payment
  * @param {number} debt.dueDate - Due date day
  * @param {boolean} debt.isPaidOff - Whether the debt is paid off
+ * @param {number} [recordedPayments] - Count of payment records for this debt
  * @returns {string} HTML string for the debt card
  */
-export function renderDebtCard(debt) {
+export function renderDebtCard(debt, recordedPayments = 0) {
   const badgeClass = getBadgeClass(debt.type);
   const isLunas = debt.isPaidOff;
+
+  // Model A: remaining obligation & installment progress (tenor debts only)
+  const remaining = getRemainingObligation(debt, recordedPayments);
+  const paidCount = getPaidInstallments(debt, recordedPayments);
 
   return `
     <div class="card debt-card ${isLunas ? 'debt-card--lunas' : ''}" data-id="${debt.id}">
@@ -53,6 +59,16 @@ export function renderDebtCard(debt) {
           <span class="debt-card__info-label">${STRINGS.LIST_LABEL_DUE_DATE}</span>
           <span class="debt-card__info-value">${debt.dueDate}</span>
         </div>
+        ${debt.tenorMonths ? `
+        <div class="debt-card__info-group">
+          <span class="debt-card__info-label">Cicilan Berjalan</span>
+          <span class="debt-card__info-value">${Math.min(paidCount, debt.tenorMonths)}/${debt.tenorMonths} bulan</span>
+        </div>
+        <div class="debt-card__info-group">
+          <span class="debt-card__info-label">Sisa Kewajiban</span>
+          <span class="debt-card__info-value font-bold ${remaining === 0 ? 'text-primary' : ''}">${formatRupiah(remaining)}</span>
+        </div>
+        ` : ''}
       </div>
     </div>
   `;

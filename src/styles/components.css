@@ -426,3 +426,166 @@
 
 
 
+
+/* Monthly Bills Panel */
+.badge--success {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: var(--color-success);
+}
+
+.alert--success {
+  background-color: rgba(16, 185, 129, 0.1);
+  border-left: 4px solid var(--color-success);
+  color: var(--color-text);
+}
+
+.bills-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.bill-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.bill-row:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.bill-row--paid {
+  opacity: 0.65;
+}
+
+.bill-row--paid .bill-row__name {
+  text-decoration: line-through;
+}
+
+.bill-row--overdue {
+  border-color: var(--color-danger);
+}
+
+.bill-checkbox {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  accent-color: var(--color-success);
+  cursor: pointer;
+}
+
+.bill-row__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bill-row__name {
+  font-weight: 600;
+}
+
+.bill-row__meta {
+  font-size: var(--font-size-xs);
+}
+
+.bill-row__amount {
+  white-space: nowrap;
+}
+
+.bills-progress__track {
+  width: 100%;
+  height: 8px;
+  background-color: var(--color-surface-hover);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: var(--spacing-1);
+}
+
+.bills-progress__fill {
+  height: 100%;
+  background-color: var(--color-success);
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+
+/* Debt Detail Page */
+.debt-card {
+  cursor: pointer;
+}
+
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.schedule-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.schedule-row:last-child {
+  border-bottom: none;
+}
+
+.schedule-row--paid .schedule-row__month {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.schedule-row--late .schedule-row__month {
+  color: var(--color-danger);
+}
+
+.schedule-row__month {
+  flex: 0 0 130px;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+}
+
+.schedule-row__status {
+  flex: 1;
+}
+
+.schedule-row__amount {
+  white-space: nowrap;
+  font-size: var(--font-size-sm);
+}
+
+/* Income Ratio Meter (Takar) */
+.ratio-pct {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.ratio-pct--green { color: var(--color-success); }
+.ratio-pct--yellow { color: var(--color-warning); }
+.ratio-pct--red { color: var(--color-danger); }
+
+.ratio-chip--green {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: var(--color-success);
+}
+.ratio-chip--yellow {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: var(--color-warning);
+}
+.ratio-chip--red {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: var(--color-danger);
+}
+
+.ratio-card--yellow { border-left: 4px solid var(--color-warning); }
+.ratio-card--red { border-left: 4px solid var(--color-danger); }

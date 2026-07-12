@@ -5,6 +5,8 @@ import { renderTimelineChart } from '../components/TimelineChart.js';
 import { renderStrategyComparison } from '../components/StrategyComparison.js';
 import { renderCsvImport } from '../components/CsvImport.js';
 import { renderDebtList } from '../components/DebtList.js';
+import { renderMonthlyBills } from '../components/MonthlyBills.js';
+import { renderIncomeRatio } from '../components/IncomeRatio.js';
 import { getAllDebts } from '../utils/storage.js';
 import { calculatePayoffSchedule } from '../utils/strategy.js';
 import { exportToPdf } from '../utils/pdfExport.js';
@@ -87,8 +89,10 @@ export async function renderDashboardPage(container) {
           <div id="strategy-comparison-container"></div>
         </div>
 
-        <!-- Right Side: Current active debts list -->
+        <!-- Right Side: Monthly bills checklist and active debts list -->
         <div class="dashboard-list-section">
+          <div id="income-ratio-container"></div>
+          <div id="monthly-bills-container"></div>
           <div id="debt-list-container"></div>
         </div>
       </div>
@@ -219,6 +223,18 @@ export async function renderDashboardPage(container) {
     updateSimulation();
   });
 
+  // Render monthly combined bills checklist; refresh list & simulation
+  // when a payment is (un)marked since it can change paid-off status
+  const ratioContainer = container.querySelector('#income-ratio-container');
+  const billsContainer = container.querySelector('#monthly-bills-container');
+  renderIncomeRatio(ratioContainer, debts);
+  renderMonthlyBills(billsContainer, debts, async () => {
+    debts = await getAllDebts();
+    updateSimulation();
+    renderIncomeRatio(ratioContainer, debts);
+    renderDebtList(listContainer);
+  });
+
   // Render active list
   renderDebtList(listContainer);
 
@@ -259,6 +275,8 @@ export async function renderDashboardPage(container) {
         try {
           debts = await getAllDebts();
           updateSimulation();
+          renderIncomeRatio(ratioContainer, debts);
+          renderMonthlyBills(billsContainer, debts);
           renderDebtList(listContainer);
         } catch (err) {
           console.error('Failed to reload debts after sync:', err);

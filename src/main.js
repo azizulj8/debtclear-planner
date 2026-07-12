@@ -5,6 +5,7 @@ import { renderLandingPage } from './pages/LandingPage.js';
 import { renderDebtForm } from './components/DebtForm.js';
 import { renderDashboardPage } from './pages/DashboardPage.js';
 import { renderPricingPage } from './pages/PricingPage.js';
+import { renderDebtDetailPage } from './pages/DebtDetailPage.js';
 import { requestNotificationPermission, scheduleNativeReminders } from './utils/notifications.js';
 import { getAllDebts } from './utils/storage.js';
 import { SplashScreen } from '@capacitor/splash-screen';
@@ -33,6 +34,8 @@ function renderRoute(path) {
     renderPricingPage(appContainer);
   } else if (cleanPath === '/add-debt' || cleanPath === '/edit-debt') {
     renderDebtForm(appContainer);
+  } else if (cleanPath === '/debt-detail') {
+    renderDebtDetailPage(appContainer);
   } else {
     appContainer.innerHTML = '<div class="container mt-4"><h1>404 Not Found</h1></div>';
   }

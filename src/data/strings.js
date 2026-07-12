@@ -33,6 +33,8 @@ export const STRINGS = {
   FORM_LABEL_INTEREST: 'Bunga Tahunan (%)',
   FORM_LABEL_MIN_PAYMENT: 'Cicilan Minimum (Rp)',
   FORM_LABEL_DUE_DATE: 'Tanggal Jatuh Tempo (1-31)',
+  FORM_LABEL_TENOR: 'Tenor (bulan) — opsional',
+  FORM_LABEL_PRIOR_PAYMENTS: 'Cicilan yang sudah dibayar sebelum dicatat — opsional',
   FORM_BTN_SAVE: 'Simpan',
   FORM_BTN_CANCEL: 'Batal',
 
@@ -44,6 +46,8 @@ export const STRINGS = {
   ERR_INVALID_INTEREST: 'Bunga tahunan harus berupa angka 0-100.',
   ERR_INVALID_MIN_PAYMENT: 'Cicilan minimum harus berupa angka lebih dari 0.',
   ERR_INVALID_DUE_DATE: 'Tanggal jatuh tempo harus antara 1-31.',
+  ERR_INVALID_TENOR: 'Tenor harus berupa angka bulan antara 1-600.',
+  ERR_INVALID_PRIOR_PAYMENTS: 'Jumlah cicilan terbayar harus 0 atau lebih, dan kurang dari tenor.',
 
   // Debt List
   LIST_TITLE: 'Daftar Utang Anda',

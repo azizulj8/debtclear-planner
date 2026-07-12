@@ -1,12 +1,14 @@
 import { STRINGS } from '../data/strings.js';
-import { getAllDebts, deleteDebt } from '../utils/storage.js';
+import { getAllDebts, deleteDebt, getPaymentCountsPerDebt } from '../utils/storage.js';
 import { formatRupiah } from '../utils/format.js';
 import { renderDebtCard } from './DebtCard.js';
 
 export async function renderDebtList(container) {
   let debts = [];
+  let paymentCounts = new Map();
   try {
     debts = await getAllDebts();
+    paymentCounts = await getPaymentCountsPerDebt();
   } catch (err) {
     console.error('Failed to load debts:', err);
     alert('Gagal memuat data utang. Pastikan browser Anda mengizinkan penyimpanan lokal (IndexedDB).');
@@ -61,7 +63,7 @@ export async function renderDebtList(container) {
 
         <!-- Cards Container -->
         <div class="debts-grid">
-          ${sortedDebts.map(d => renderDebtCard(d)).join('')}
+          ${sortedDebts.map(d => renderDebtCard(d, paymentCounts.get(d.id) || 0)).join('')}
         </div>
       </div>
     `;
@@ -86,6 +88,15 @@ export async function renderDebtList(container) {
         render();
       });
     }
+
+    // Open detail page when the card body is clicked (not its buttons)
+    container.querySelectorAll('.debt-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('button')) return;
+        const id = parseInt(card.getAttribute('data-id'), 10);
+        window.dispatchEvent(new CustomEvent('navigate', { detail: { path: `/debt-detail?id=${id}` } }));
+      });
+    });
 
     // Edit and Delete handlers
     container.querySelectorAll('.btn-edit').forEach(btn => {

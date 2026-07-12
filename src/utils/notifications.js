@@ -37,10 +37,12 @@ export async function requestNotificationPermission() {
  * Schedules native reminders for all active debts.
  * Automatically clears previous scheduled reminders first to avoid duplicates.
  * Reminders are scheduled at H-1 (one day before) the due date at 09:00 AM.
- * 
+ * Bills already marked as paid for their due month are skipped.
+ *
  * @param {Array} debts - List of debt objects
+ * @param {Set<string>} [paidSet] - Set of "debtId:YYYY-MM" already-paid bills
  */
-export async function scheduleNativeReminders(debts) {
+export async function scheduleNativeReminders(debts, paidSet = new Set()) {
   if (!isNative()) return;
 
   try {
@@ -67,12 +69,18 @@ export async function scheduleNativeReminders(debts) {
       if (isNaN(dueDay)) return;
 
       const now = new Date();
+      let dueDate = new Date(now.getFullYear(), now.getMonth(), dueDay, 9, 0, 0);
       let scheduledDate = new Date(now.getFullYear(), now.getMonth(), dueDay - 1, 9, 0, 0);
 
       // If scheduled date is in the past (e.g. today is 15th, due date is 10th), schedule for next month
       if (scheduledDate < now) {
         scheduledDate.setMonth(scheduledDate.getMonth() + 1);
+        dueDate.setMonth(dueDate.getMonth() + 1);
       }
+
+      // Skip if this month's bill is already marked as paid
+      const dueMonthKey = `${dueDate.getFullYear()}-${String(dueDate.getMonth() + 1).padStart(2, '0')}`;
+      if (paidSet.has(`${debt.id}:${dueMonthKey}`)) return;
 
       notifications.push({
         id: debt.id,

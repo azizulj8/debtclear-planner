@@ -82,6 +82,18 @@ export async function renderDebtForm(container) {
             <span class="form-error" id="err-due-date"></span>
           </div>
 
+          <div class="form-group">
+            <label class="form-label" for="debt-tenor">${STRINGS.FORM_LABEL_TENOR}</label>
+            <input type="number" id="debt-tenor" class="form-input" placeholder="12" min="1" max="600" value="${existingDebt && existingDebt.tenorMonths ? existingDebt.tenorMonths : ''}" />
+            <span class="form-error" id="err-tenor"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="debt-prior-payments">${STRINGS.FORM_LABEL_PRIOR_PAYMENTS}</label>
+            <input type="number" id="debt-prior-payments" class="form-input" placeholder="0" min="0" value="${existingDebt && existingDebt.priorPayments ? existingDebt.priorPayments : ''}" />
+            <span class="form-error" id="err-prior-payments"></span>
+          </div>
+
           <div class="flex gap-4 mt-6">
             <button type="submit" class="btn btn--primary flex-1" id="btn-save">${STRINGS.FORM_BTN_SAVE}</button>
             <button type="button" class="btn btn--secondary flex-1" id="btn-cancel">${STRINGS.FORM_BTN_CANCEL}</button>
@@ -235,7 +247,13 @@ function setupEventListeners(container, existingDebt) {
       principal: parseRupiah(principalInput.value),
       interestRate: parseFloat(container.querySelector('#debt-interest').value),
       minPayment: parseRupiah(minPaymentInput.value),
-      dueDate: parseInt(container.querySelector('#debt-due-date').value, 10)
+      dueDate: parseInt(container.querySelector('#debt-due-date').value, 10),
+      tenorMonths: container.querySelector('#debt-tenor').value
+        ? parseInt(container.querySelector('#debt-tenor').value, 10)
+        : null,
+      priorPayments: container.querySelector('#debt-prior-payments').value
+        ? parseInt(container.querySelector('#debt-prior-payments').value, 10)
+        : null
     };
 
     const validation = validateDebtForm(formData);
@@ -288,6 +306,8 @@ function showErrors(container, errors) {
       case 'interestRate': errorId = 'err-interest'; inputId = 'debt-interest'; break;
       case 'minPayment': errorId = 'err-min-payment'; inputId = 'debt-min-payment'; break;
       case 'dueDate': errorId = 'err-due-date'; inputId = 'debt-due-date'; break;
+      case 'tenorMonths': errorId = 'err-tenor'; inputId = 'debt-tenor'; break;
+      case 'priorPayments': errorId = 'err-prior-payments'; inputId = 'debt-prior-payments'; break;
     }
 
     if (errorId) {

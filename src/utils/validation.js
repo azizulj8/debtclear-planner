@@ -50,6 +50,34 @@ export function validateDebtForm(data) {
     errors.dueDate = STRINGS.ERR_INVALID_DUE_DATE
   }
 
+  // Tenor is optional; validate only when provided
+  if (data.tenorMonths !== null && data.tenorMonths !== undefined) {
+    if (
+      typeof data.tenorMonths !== 'number' ||
+      isNaN(data.tenorMonths) ||
+      data.tenorMonths < 1 ||
+      data.tenorMonths > 600
+    ) {
+      errors.tenorMonths = STRINGS.ERR_INVALID_TENOR
+    }
+  }
+
+  // Prior payments is optional; must be >= 0 and below the tenor (a debt
+  // whose installments are all paid should not be recorded as active)
+  if (data.priorPayments !== null && data.priorPayments !== undefined) {
+    const invalidNumber =
+      typeof data.priorPayments !== 'number' ||
+      isNaN(data.priorPayments) ||
+      data.priorPayments < 0
+    const exceedsTenor =
+      typeof data.tenorMonths === 'number' &&
+      !isNaN(data.tenorMonths) &&
+      data.priorPayments >= data.tenorMonths
+    if (invalidNumber || exceedsTenor) {
+      errors.priorPayments = STRINGS.ERR_INVALID_PRIOR_PAYMENTS
+    }
+  }
+
   return {
     isValid: Object.keys(errors).length === 0,
     errors,

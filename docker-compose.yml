@@ -9,3 +9,10 @@ services:
     restart: unless-stopped
     ports:
       - '3100:80'
+    networks:
+      - caddy-proxy
+
+networks:
+  caddy-proxy:
+    external: true
+

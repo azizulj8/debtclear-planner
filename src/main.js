@@ -4,6 +4,7 @@ import './styles/components.css';
 import { renderLandingPage } from './pages/LandingPage.js';
 import { renderDebtForm } from './components/DebtForm.js';
 import { renderDashboardPage } from './pages/DashboardPage.js';
+import { renderPricingPage } from './pages/PricingPage.js';
 import { requestNotificationPermission, scheduleNativeReminders } from './utils/notifications.js';
 import { getAllDebts } from './utils/storage.js';
 import { SplashScreen } from '@capacitor/splash-screen';
@@ -28,11 +29,14 @@ function renderRoute(path) {
     renderLandingPage(appContainer);
   } else if (cleanPath === '/dashboard') {
     renderDashboardPage(appContainer);
+  } else if (cleanPath === '/pricing') {
+    renderPricingPage(appContainer);
   } else if (cleanPath === '/add-debt' || cleanPath === '/edit-debt') {
     renderDebtForm(appContainer);
   } else {
     appContainer.innerHTML = '<div class="container mt-4"><h1>404 Not Found</h1></div>';
   }
+
 
   // Hide native splash screen if running on device
   if (Capacitor.isNativePlatform()) {

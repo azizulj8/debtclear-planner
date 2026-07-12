@@ -8,6 +8,8 @@ import { renderDebtList } from '../components/DebtList.js';
 import { getAllDebts } from '../utils/storage.js';
 import { calculatePayoffSchedule } from '../utils/strategy.js';
 import { exportToPdf } from '../utils/pdfExport.js';
+import { getCurrentUser, signOut } from '../utils/supabase.js';
+import { renderAuthModal } from '../components/AuthModal.js';
 
 export async function renderDashboardPage(container) {
   let debts = [];
@@ -22,6 +24,22 @@ export async function renderDashboardPage(container) {
   let currentExtraPayment = parseInt(localStorage.getItem('debtclear_extra_payment') || '0', 10);
   const currentTheme = localStorage.getItem('debtclear_theme') || 'dark';
 
+  // Get current authenticated user
+  const currentUser = await getCurrentUser();
+
+  const authSectionHTML = currentUser 
+    ? `
+      <div class="flex items-center gap-2" style="font-size: var(--font-size-sm);">
+        <span class="text-secondary" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${currentUser.email}</span>
+        <button type="button" class="btn btn--secondary btn--sm" id="btn-auth-logout" style="padding: 4px 8px;">Keluar</button>
+      </div>
+    `
+    : `
+      <button type="button" class="btn btn--primary btn--sm" id="btn-auth-trigger" style="padding: 6px 12px; font-weight:600;">
+        🔑 Masuk / Daftar
+      </button>
+    `;
+
   // Base shell
   container.innerHTML = `
     <header class="app-header">
@@ -33,6 +51,7 @@ export async function renderDashboardPage(container) {
           ${STRINGS.APP_NAME}
         </div>
         <div class="flex items-center gap-3">
+          ${authSectionHTML}
           <button type="button" class="btn btn--secondary btn--sm" id="btn-csv-trigger" style="gap:var(--spacing-1);">
             📂 Import CSV
           </button>
@@ -45,6 +64,7 @@ export async function renderDashboardPage(container) {
         </div>
       </div>
     </header>
+
 
     <main class="container mt-4 mb-12">
       <div class="dashboard-layout grid-main">
@@ -64,6 +84,25 @@ export async function renderDashboardPage(container) {
     </main>
   `;
 
+  // Attach Auth handlers
+  const authTrigger = container.querySelector('#btn-auth-trigger');
+  if (authTrigger) {
+    authTrigger.addEventListener('click', () => {
+      renderAuthModal(() => {
+        // Refresh page on successful login
+        renderDashboardPage(container);
+      });
+    });
+  }
+
+  const authLogout = container.querySelector('#btn-auth-logout');
+  if (authLogout) {
+    authLogout.addEventListener('click', async () => {
+      await signOut();
+      renderDashboardPage(container);
+    });
+  }
+
   // Attach CSV import modal trigger
   const csvImport = renderCsvImport(container, async () => {
     // Refresh page data on successful import
@@ -79,6 +118,7 @@ export async function renderDashboardPage(container) {
   container.querySelector('#logo-dashboard').addEventListener('click', () => {
     window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/' } }));
   });
+
 
   // Theme switcher
   const themeBtn = container.querySelector('#btn-theme-toggle');

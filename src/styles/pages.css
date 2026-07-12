@@ -168,10 +168,18 @@
   padding: var(--spacing-4) 0;
   border-bottom: 1px solid var(--color-border);
   background-color: var(--color-surface);
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
 }
+
+/* Offset page content for the fixed header */
+.app-header + main {
+  padding-top: 75px;
+}
+
 
 /* Responsive Navigation Menu */
 .nav-menu {

@@ -151,13 +151,18 @@ function renderEmptyState(container) {
       <h3 class="mb-2" style="font-weight: 600;">${STRINGS.LIST_EMPTY_STATE}</h3>
       <p class="text-secondary mb-6">Mulai catat utang Anda sekarang untuk menyusun rencana pelunasan cerdas.</p>
       <div class="flex gap-2 justify-center flex-wrap">
-        <button class="btn btn--primary" id="btn-quick-add-empty">⚡ Catat Cepat Pinjaman</button>
+        <button class="btn btn--primary" id="btn-audit-empty">🔍 Audit Utangku</button>
+        <button class="btn btn--primary" id="btn-quick-add-empty">⚡ Catat Cepat</button>
         <button class="btn btn--secondary" id="btn-add-debt-empty">
           ${STRINGS.LIST_EMPTY_CTA}
         </button>
       </div>
     </div>
   `;
+
+  container.querySelector('#btn-audit-empty').addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/audit' } }));
+  });
 
   container.querySelector('#btn-add-debt-empty').addEventListener('click', () => {
     window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/add-debt' } }));

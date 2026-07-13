@@ -19,40 +19,45 @@ DebtClear Planner adalah aplikasi perencana pelunasan utang personal untuk pasar
 - Bunga tahunan, tenor, dan total kewajiban dihitung otomatis (`src/utils/quickAdd.js`), dengan preview langsung: "Total yang akan kamu bayar: Rp X (bunga ≈ Y%/thn)".
 - Link ke form lengkap tersedia untuk kasus yang butuh field detail.
 
-### 1.3 Template Pinjol
+### 1.3 Audit Utang (Checklist Provider)
+- Halaman terpandu (`src/pages/AuditPage.js`, route `/audit`, tombol "🔍 Audit Utang" di menu dashboard & empty state) untuk menemukan pinjaman yang terlupa.
+- Checklist ~20 provider populer per kategori — PayLater (SPayLater, GoPay Later, Kredivo, …), Pinjol (AdaKami, JULO, …), Cicilan Barang, Bank (`src/data/auditProviders.js`).
+- Provider yang sudah punya utang tercatat otomatis bertanda "✓ Sudah tercatat"; tombol "⚡ Catat" membuka Quick-Add dengan nama provider ter-prefill, lalu kembali ke checklist untuk lanjut mengaudit.
+
+### 1.4 Template Pinjol
 - Tersedia template siap pakai untuk pinjaman online umum di Indonesia (`src/data/pinjolTemplates.js`), mengacu pada praktik pasar / batas OJK:
   - Pinjol harian tenor 7 dan 14 hari (~0,3%/hari)
   - Pinjol bulanan tenor 30 hari (~0,4%/hari)
   - Pinjol cicilan tenor 3 dan 6 bulan (~7–8%/bulan)
 - Memilih template otomatis mengisi bunga tahunan, jatuh tempo, dan estimasi cicilan minimum.
 
-### 1.4 Import Massal via CSV
+### 1.5 Import Massal via CSV
 - Modal import CSV (`src/components/CsvImport.js`) berbasis PapaParse.
 - Fitur: drag-and-drop file, template CSV yang bisa diunduh (`/template-utang.csv`), pratinjau data sebelum import, pilih baris via checkbox, dan laporan error per baris.
 
-### 1.5 Sisa Kewajiban & Auto-Lunas (Model A)
+### 1.6 Sisa Kewajiban & Auto-Lunas (Model A)
 - Utang ber-tenor punya **total kewajiban** = cicilan minimum × tenor; setiap pembayaran tercatat mengurangi sisa kewajiban satu cicilan (`src/utils/obligation.js`).
 - Kartu utang menampilkan **Cicilan Berjalan (mis. 2/3 bulan)** dan **Sisa Kewajiban**.
 - Field opsional "cicilan yang sudah dibayar sebelum dicatat" untuk utang lama yang diinput di tengah masa cicilan.
 - **Auto-lunas:** utang otomatis berstatus Lunas saat jumlah cicilan terbayar mencapai tenor, dan otomatis batal jika pembayaran di-uncheck.
 
-### 1.6 Takar Kemampuan Bayar (Rasio Cicilan/Penghasilan)
+### 1.7 Takar Kemampuan Bayar (Rasio Cicilan/Penghasilan)
 - Panel **"Takar Kemampuan Bayar"** di atas Tagihan Bulan Ini (`src/components/IncomeRatio.js`, kalkulasi di `src/utils/ratio.js`).
 - User memasukkan penghasilan bulanan (perkiraan kasar boleh) → tampil **persentase besar + chip zona + kalimat status**: hijau <30% (Aman), kuning 30–50% (Waspada), merah >50% (Bahaya); pesan khusus jika cicilan melebihi penghasilan.
 - Rasio ter-update otomatis saat utang berubah atau pembayaran dicentang.
 - Penghasilan **hanya tersimpan lokal di perangkat** (localStorage), tidak ikut cloud sync.
 
-### 1.7 Halaman Detail Utang
+### 1.8 Halaman Detail Utang
 - Klik kartu utang membuka halaman detail (`src/pages/DebtDetailPage.js`, route `/debt-detail?id=`).
 - **Utang ber-tenor:** sisa & total kewajiban, progress cicilan, dan **jadwal cicilan per bulan hingga lunas** dengan status per baris (✓ dibayar + tanggal / Bulan Ini / Terlambat), termasuk catatan cicilan yang dibayar sebelum dicatat.
 - **Utang tanpa tenor:** sisa pokok (diperbarui manual lewat Edit) + riwayat pembayaran — tanpa jadwal proyeksi.
 
-### 1.8 Pencatatan Pembayaran Bulanan
+### 1.9 Pencatatan Pembayaran Bulanan
 - Setiap tagihan cicilan bisa ditandai **sudah dibayar / belum** per bulan (`src/components/MonthlyBills.js`, tabel `payments` di IndexedDB).
 - Riwayat pembayaran tersimpan per utang per bulan (tanggal bayar + nominal).
 - Status "Terlambat" otomatis muncul jika tanggal jatuh tempo sudah lewat dan belum dibayar; "Segera Jatuh Tempo" muncul H-3.
 
-### 1.9 Tagihan Gabungan Bulanan
+### 1.10 Tagihan Gabungan Bulanan
 - Panel **"Tagihan Bulan Ini"** di dashboard menggabungkan cicilan semua provider utang di bulan yang sama:
   - Total tagihan bulan berjalan, total sudah dibayar, dan sisa yang belum dibayar.
   - Checklist bayar per utang, diurutkan berdasarkan tanggal jatuh tempo.

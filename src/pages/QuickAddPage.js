@@ -10,6 +10,12 @@ import { addDebt } from '../utils/storage.js';
  * @param {HTMLElement} container
  */
 export function renderQuickAddPage(container) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const prefillName = urlParams.get('name') || '';
+  const fromAudit = urlParams.get('from') === 'audit';
+  // After saving/cancel, return to the audit checklist when we came from it
+  const backPath = fromAudit ? '/audit' : '/dashboard';
+
   container.innerHTML = `
     <div class="container mt-4 mb-4" style="max-width: 560px;">
       <div class="card debt-form-card">
@@ -21,7 +27,7 @@ export function renderQuickAddPage(container) {
         <form id="quick-add-form">
           <div class="form-group">
             <label class="form-label" for="qa-name">Pinjam di mana?</label>
-            <input type="text" id="qa-name" class="form-input" placeholder="mis: AdaKami, Kredivo, SPayLater" />
+            <input type="text" id="qa-name" class="form-input" placeholder="mis: AdaKami, Kredivo, SPayLater" value="${prefillName.replace(/"/g, '&quot;')}" />
             <span class="form-error" id="qa-err-name"></span>
           </div>
 
@@ -106,7 +112,7 @@ export function renderQuickAddPage(container) {
   tenorInput.addEventListener('input', updatePreview);
 
   container.querySelector('#qa-cancel').addEventListener('click', () => {
-    window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/dashboard' } }));
+    window.dispatchEvent(new CustomEvent('navigate', { detail: { path: backPath } }));
   });
 
   container.querySelector('#qa-full-form').addEventListener('click', (e) => {
@@ -158,7 +164,7 @@ export function renderQuickAddPage(container) {
         priorPayments: null,
       });
 
-      window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/dashboard' } }));
+      window.dispatchEvent(new CustomEvent('navigate', { detail: { path: backPath } }));
     } catch (err) {
       console.error('Failed to quick-add debt:', err);
       alert('Terjadi kesalahan saat menyimpan data.');

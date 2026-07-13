@@ -23,7 +23,7 @@ Form capture 15 detik dengan 3 field sesuai cara pinjol berkomunikasi:
 - *Pinjam berapa, bayar berapa, kapan* → bunga & tenor dihitung otomatis.
 - Menggantikan keharusan tahu "bunga tahunan %" yang tidak pernah disebut pinjol.
 
-### 4. Audit Utang (onboarding terpandu)
+### 4. Audit Utang (onboarding terpandu) — ✅ SHIPPED 12 Jul 2026
 - Flow terpandu: "buka satu-satu aplikasi pinjolmu, cek menu tagihan, masukkan sini".
 - Checklist provider pinjol legal populer: "punya akun di sini? cek sekarang".
 - Cocok jadi momen "aha" pertama pengguna baru; menjawab masalah rekonsiliasi (utang lupa di provider B).

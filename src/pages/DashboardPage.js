@@ -64,6 +64,9 @@ export async function renderDashboardPage(container) {
 
         <div class="nav-menu" id="nav-menu-container">
           ${authSectionHTML}
+          <button type="button" class="btn btn--secondary btn--sm" id="btn-audit-trigger" style="gap:var(--spacing-1);">
+            🔍 Audit Utang
+          </button>
           <button type="button" class="btn btn--secondary btn--sm" id="btn-csv-trigger" style="gap:var(--spacing-1);">
             📂 Import CSV
           </button>
@@ -154,6 +157,14 @@ export async function renderDashboardPage(container) {
   const triggerCsv = container.querySelector('#btn-csv-trigger');
   if (triggerCsv) {
     triggerCsv.addEventListener('click', () => csvImport.open());
+  }
+
+  // Audit page trigger
+  const auditTrigger = container.querySelector('#btn-audit-trigger');
+  if (auditTrigger) {
+    auditTrigger.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/audit' } }));
+    });
   }
 
   // Logo home navigation

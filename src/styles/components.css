@@ -589,3 +589,38 @@
 
 .ratio-card--yellow { border-left: 4px solid var(--color-warning); }
 .ratio-card--red { border-left: 4px solid var(--color-danger); }
+
+/* Audit Page */
+.audit-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.audit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.audit-row--recorded {
+  opacity: 0.75;
+}
+
+.audit-row__info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.audit-row__name {
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+}

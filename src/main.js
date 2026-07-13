@@ -7,6 +7,7 @@ import { renderDashboardPage } from './pages/DashboardPage.js';
 import { renderPricingPage } from './pages/PricingPage.js';
 import { renderDebtDetailPage } from './pages/DebtDetailPage.js';
 import { renderQuickAddPage } from './pages/QuickAddPage.js';
+import { renderAuditPage } from './pages/AuditPage.js';
 import { requestNotificationPermission, scheduleNativeReminders } from './utils/notifications.js';
 import { getAllDebts } from './utils/storage.js';
 import { SplashScreen } from '@capacitor/splash-screen';
@@ -39,6 +40,8 @@ function renderRoute(path) {
     renderDebtDetailPage(appContainer);
   } else if (cleanPath === '/quick-add') {
     renderQuickAddPage(appContainer);
+  } else if (cleanPath === '/audit') {
+    renderAuditPage(appContainer);
   } else {
     appContainer.innerHTML = '<div class="container mt-4"><h1>404 Not Found</h1></div>';
   }

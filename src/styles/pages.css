@@ -280,3 +280,81 @@
   }
 }
 
+
+/* Mobile-first priority: on small screens show the actionable column
+   (Takar, Tagihan Bulan Ini, debts) BEFORE strategy charts */
+@media (max-width: 1023px) {
+  .dashboard-list-section {
+    order: -1;
+  }
+}
+
+/* Landing hero (Cruip FinTech-inspired) */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  margin-bottom: var(--spacing-4);
+}
+
+.hero-actions {
+  display: flex;
+  gap: var(--spacing-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-4);
+  max-width: 640px;
+  margin: var(--spacing-8) auto 0;
+  padding-top: var(--spacing-6);
+  border-top: 1px solid var(--color-border);
+}
+
+.hero-stat__value {
+  display: block;
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.hero-stat__label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+@media (min-width: 768px) {
+  .hero-title {
+    font-size: 3.25rem;
+    letter-spacing: -1px;
+  }
+
+  .hero-section {
+    padding: calc(var(--spacing-12) * 1.5) 0 var(--spacing-12);
+  }
+}
+
+/* Landing bottom CTA */
+.cta-section {
+  padding: var(--spacing-12) 0;
+  text-align: center;
+}
+
+.cta-section .card {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--spacing-8);
+  background:
+    radial-gradient(circle at top, rgba(15, 157, 88, 0.12) 0%, transparent 70%),
+    var(--color-surface);
+}

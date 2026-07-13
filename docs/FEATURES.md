@@ -170,6 +170,8 @@ DebtClear Planner adalah aplikasi perencana pelunasan utang personal untuk pasar
 - Tema **gelap/terang** (default gelap), tersimpan di `localStorage`.
 - Semua teks UI berbahasa Indonesia, terpusat di `src/data/strings.js`; format mata uang Rupiah (`src/utils/format.js`).
 - Desain "banking/crypto aesthetic" dengan efek glow, header tetap saat scroll, dan layout responsif.
+- **Mobile-first ordering:** di layar kecil, kolom actionable (Takar → Tagihan Bulan Ini → daftar utang) tampil lebih dulu; grafik strategi menyusul di bawah.
+- **Landing bergaya fintech** (referensi Cruip FinTech): badge kepercayaan, dual CTA (Mulai / Lihat Cara Kerja dengan smooth-scroll), strip statistik (100% anonim · 15 detik catat · 2 strategi), dan section CTA penutup.
 
 ---
 

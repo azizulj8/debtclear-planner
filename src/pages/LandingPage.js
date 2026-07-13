@@ -23,14 +23,35 @@ export function renderLandingPage(container) {
     <main>
       <section class="hero-section fade-in">
         <div class="container">
+          <span class="hero-badge">✨ Gratis · Tanpa Daftar · Bisa Offline</span>
           <h1 class="hero-title">${STRINGS.LANDING_HERO_TITLE}</h1>
           <p class="hero-subtitle">${STRINGS.LANDING_HERO_SUBTITLE}</p>
-          <button class="btn btn--primary" id="start-app-btn" style="padding: 12px 24px; font-size: 1.125rem;">
-            ${STRINGS.LANDING_CTA_BUTTON}
-          </button>
+          <div class="hero-actions">
+            <button class="btn btn--primary" id="start-app-btn" style="padding: 12px 24px; font-size: 1.125rem;">
+              ${STRINGS.LANDING_CTA_BUTTON}
+            </button>
+            <button class="btn btn--secondary" id="how-it-works-btn" style="padding: 12px 24px; font-size: 1.125rem;">
+              Lihat Cara Kerja
+            </button>
+          </div>
           <p class="text-secondary mt-3" style="font-size: var(--font-size-sm);">
             🔒 ${STRINGS.LANDING_PRIVACY_NOTE}
           </p>
+
+          <div class="hero-stats">
+            <div>
+              <span class="hero-stat__value">100%</span>
+              <span class="hero-stat__label">Anonim — data hanya di perangkatmu</span>
+            </div>
+            <div>
+              <span class="hero-stat__value">15 detik</span>
+              <span class="hero-stat__label">Catat pinjaman baru, bunga dihitung otomatis</span>
+            </div>
+            <div>
+              <span class="hero-stat__value">2 strategi</span>
+              <span class="hero-stat__label">Snowball & Avalanche dibandingkan otomatis</span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -67,7 +88,7 @@ export function renderLandingPage(container) {
         </div>
       </section>
 
-      <section class="how-it-works-section fade-in">
+      <section class="how-it-works-section fade-in" id="how-it-works">
         <div class="container">
           <h2 class="section-title">${STRINGS.LANDING_HOW_IT_WORKS_TITLE}</h2>
           <div class="steps-list">
@@ -99,6 +120,18 @@ export function renderLandingPage(container) {
           </div>
         </div>
       </section>
+
+      <section class="cta-section fade-in">
+        <div class="container">
+          <div class="card">
+            <h2 class="section-title" style="margin-bottom: var(--spacing-2);">Mulai Hari Ini, 2 Menit Saja</h2>
+            <p class="text-secondary mb-6">Audit semua pinjolmu, lihat total tagihan bulananmu, dan susun rencana bebas utang — tanpa daftar akun.</p>
+            <button class="btn btn--primary" id="start-app-btn-bottom" style="padding: 12px 24px; font-size: 1.125rem;">
+              ${STRINGS.LANDING_CTA_BUTTON}
+            </button>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer class="landing-footer">
@@ -108,12 +141,17 @@ export function renderLandingPage(container) {
     </footer>
   `
 
-  // Attach event listener for the CTA button
-  container.querySelector('#start-app-btn').addEventListener('click', () => {
-    // In a real app, this would use a router.
-    // For now, we will dispatch a custom event to signify routing to dashboard.
+  // Attach event listeners for the CTA buttons (hero + bottom section)
+  const goDashboard = () => {
     const event = new CustomEvent('navigate', { detail: { path: '/dashboard' } })
     window.dispatchEvent(event)
+  }
+  container.querySelector('#start-app-btn').addEventListener('click', goDashboard)
+  container.querySelector('#start-app-btn-bottom').addEventListener('click', goDashboard)
+
+  // Smooth-scroll to the how-it-works section
+  container.querySelector('#how-it-works-btn').addEventListener('click', () => {
+    container.querySelector('#how-it-works').scrollIntoView({ behavior: 'smooth' })
   })
 
   // Setup Intersection Observer for fade-in animations

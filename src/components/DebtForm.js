@@ -3,6 +3,7 @@ import { formatRupiah, parseRupiah } from '../utils/format.js';
 import { validateDebtForm } from '../utils/validation.js';
 import { addDebt, getDebt, updateDebt } from '../utils/storage.js';
 import { PINJOL_TEMPLATES } from '../data/pinjolTemplates.js';
+import { AUDIT_PROVIDERS } from '../data/auditProviders.js';
 
 export async function renderDebtForm(container) {
   // Check if we are in Edit Mode
@@ -86,6 +87,18 @@ export async function renderDebtForm(container) {
             <label class="form-label" for="debt-tenor">${STRINGS.FORM_LABEL_TENOR}</label>
             <input type="number" id="debt-tenor" class="form-input" placeholder="12" min="1" max="600" value="${existingDebt && existingDebt.tenorMonths ? existingDebt.tenorMonths : ''}" />
             <span class="form-error" id="err-tenor"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="debt-provider">Provider (opsional) — untuk tagihan gabungan/autodebit</label>
+            <select id="debt-provider" class="form-select">
+              <option value="">Tanpa provider / lainnya</option>
+              ${AUDIT_PROVIDERS.map(p => `
+                <option value="${p.id}" ${existingDebt && existingDebt.providerId === p.id ? 'selected' : ''}>
+                  ${p.name}${p.billing === 'consolidated' ? ' — tagihan gabungan' : ''}${p.autodebit ? ' — autodebit' : ''}
+                </option>
+              `).join('')}
+            </select>
           </div>
 
           <div class="form-group">
@@ -253,7 +266,8 @@ function setupEventListeners(container, existingDebt) {
         : null,
       priorPayments: container.querySelector('#debt-prior-payments').value
         ? parseInt(container.querySelector('#debt-prior-payments').value, 10)
-        : null
+        : null,
+      providerId: container.querySelector('#debt-provider').value || null
     };
 
     const validation = validateDebtForm(formData);

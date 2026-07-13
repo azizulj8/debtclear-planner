@@ -9,12 +9,15 @@ import { renderDebtDetailPage } from './pages/DebtDetailPage.js';
 import { renderQuickAddPage } from './pages/QuickAddPage.js';
 import { renderAuditPage } from './pages/AuditPage.js';
 import { requestNotificationPermission, scheduleNativeReminders } from './utils/notifications.js';
-import { getAllDebts } from './utils/storage.js';
+import { getAllDebts, backfillProviderIds } from './utils/storage.js';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Capacitor } from '@capacitor/core';
 
 
 const appContainer = document.querySelector('#app');
+
+// Link pre-provider debts to presets, then sync reminders at startup
+backfillProviderIds().catch(err => console.warn('Provider backfill failed:', err));
 
 // Request notifications permission and sync reminders at startup
 requestNotificationPermission().then(() => {

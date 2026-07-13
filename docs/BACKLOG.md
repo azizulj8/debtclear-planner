@@ -30,7 +30,8 @@ Form capture 15 detik dengan 3 field sesuai cara pinjol berkomunikasi:
 
 ## Next
 
-### 5. Provider sebagai Entitas (Grouping & Aturan Tagihan)
+### 5. Provider sebagai Entitas (Grouping & Aturan Tagihan) — ✅ SHIPPED 12 Jul 2026
+*(Catatan: aturan pelunasan-dini di mesin Snowball/Avalanche belum — menunggu keputusan produk soal fitur "lunasi semua sekaligus".)*
 Unit pencatatan = pinjaman, unit tagihan = provider. Tiap provider punya aturan berbeda:
 - **Cara menagih:** gabungan (Kredivo: semua pinjaman aktif terakumulasi jadi 1 tagihan bulanan) vs per-pinjaman (SPayLater: tiap pinjaman berdiri sendiri).
 - **Cara bayar:** autodebit (kartu kredit — reminder berubah jadi "pastikan saldo cukup H-1"; konfirmasi "terpotong sukses/gagal", bukan checkbox bayar) vs manual.

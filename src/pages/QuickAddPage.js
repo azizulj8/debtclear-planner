@@ -1,6 +1,7 @@
 import { STRINGS } from '../data/strings.js';
 import { formatRupiah, parseRupiah } from '../utils/format.js';
 import { deriveDebtFromQuickAdd } from '../utils/quickAdd.js';
+import { findProviderPreset } from '../data/auditProviders.js';
 import { addDebt } from '../utils/storage.js';
 
 /**
@@ -162,6 +163,8 @@ export function renderQuickAddPage(container) {
         dueDate,
         tenorMonths: derived.tenorMonths,
         priorPayments: null,
+        // Auto-link to a provider preset when the name matches one
+        providerId: findProviderPreset(name)?.id || null,
       });
 
       window.dispatchEvent(new CustomEvent('navigate', { detail: { path: backPath } }));

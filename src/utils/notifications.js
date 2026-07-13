@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { getProviderById } from '../data/auditProviders.js';
 
 /**
  * Checks if the app is running on a native device (Android/iOS)
@@ -82,10 +83,14 @@ export async function scheduleNativeReminders(debts, paidSet = new Set()) {
       const dueMonthKey = `${dueDate.getFullYear()}-${String(dueDate.getMonth() + 1).padStart(2, '0')}`;
       if (paidSet.has(`${debt.id}:${dueMonthKey}`)) return;
 
+      // Autodebit providers: the user's job is ensuring balance, not paying
+      const isAutodebit = debt.providerId && getProviderById(debt.providerId)?.autodebit;
       notifications.push({
         id: debt.id,
-        title: '⏰ Besok Jatuh Tempo!',
-        body: `Jangan lupa membayar cicilan ${debt.name} sebesar Rp ${Number(debt.minPayment).toLocaleString('id-ID')}`,
+        title: isAutodebit ? '💳 Besok Autodebit!' : '⏰ Besok Jatuh Tempo!',
+        body: isAutodebit
+          ? `Pastikan saldo cukup: cicilan ${debt.name} sebesar Rp ${Number(debt.minPayment).toLocaleString('id-ID')} akan terpotong otomatis besok`
+          : `Jangan lupa membayar cicilan ${debt.name} sebesar Rp ${Number(debt.minPayment).toLocaleString('id-ID')}`,
         schedule: {
           at: scheduledDate,
           allowWhileIdle: true

@@ -1,6 +1,7 @@
 import Dexie from 'dexie'
 import { scheduleNativeReminders } from './notifications.js'
 import { isFullyPaid } from './obligation.js'
+import { findProviderPreset } from '../data/auditProviders.js'
 
 // Initialize Dexie database
 export const db = new Dexie('debtclear')
@@ -230,6 +231,25 @@ export async function getPaymentCountsPerDebt() {
     counts.set(p.debtId, (counts.get(p.debtId) || 0) + 1);
   }
   return counts;
+}
+
+/**
+ * One-time backfill: links debts created before the provider concept
+ * existed to a provider preset when their name clearly matches one,
+ * so consolidated billing groups them correctly.
+ * @returns {Promise<number>} Number of debts linked
+ */
+export async function backfillProviderIds() {
+  const debts = await db.debts.toArray();
+  let linked = 0;
+  for (const debt of debts) {
+    if (debt.providerId !== undefined) continue;
+    const preset = findProviderPreset(debt.name);
+    // Store null too so the debt is not re-checked on every startup
+    await db.debts.update(debt.id, { providerId: preset ? preset.id : null });
+    if (preset) linked++;
+  }
+  return linked;
 }
 
 /**

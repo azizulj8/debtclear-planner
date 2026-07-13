@@ -60,9 +60,15 @@ DebtClear Planner adalah aplikasi perencana pelunasan utang personal untuk pasar
 ### 1.10 Tagihan Gabungan Bulanan
 - Panel **"Tagihan Bulan Ini"** di dashboard menggabungkan cicilan semua provider utang di bulan yang sama:
   - Total tagihan bulan berjalan, total sudah dibayar, dan sisa yang belum dibayar.
-  - Checklist bayar per utang, diurutkan berdasarkan tanggal jatuh tempo.
+  - Checklist bayar per tagihan, diurutkan berdasarkan tanggal jatuh tempo.
   - Progress bar pembayaran bulan berjalan (mis. "2/5 tagihan dibayar").
   - Navigasi antar bulan (◀ ▶) untuk melihat riwayat atau bulan depan.
+
+### 1.11 Provider & Aturan Tagihan
+- Utang bisa terhubung ke **preset provider** (`src/data/auditProviders.js`) dengan dua atribut perilaku: cara menagih (**gabungan** vs per-pinjaman) dan **autodebit**.
+- **Tagihan gabungan** (Kredivo, GoPay Later, dll.): semua pinjaman aktif di provider yang sama tampil sebagai **satu baris tagihan dengan satu checkbox** (`src/utils/billGrouping.js`) — mencentang membayar semuanya sekaligus, sesuai cara provider menagih. Rincian per pinjaman bisa di-expand.
+- **Autodebit** (kartu kredit, KTA bank): bahasa berubah — baris tagihan berbunyi "pastikan saldo cukup", dan reminder Android menjadi "💳 Besok Autodebit! Pastikan saldo cukup…".
+- Penautan provider otomatis: Quick-Add mencocokkan nama ke preset, dan **backfill sekali jalan** menautkan utang lama yang namanya cocok (`backfillProviderIds`). Bisa juga dipilih manual di form lengkap.
 
 ---
 

@@ -6,6 +6,8 @@ export const STRINGS = {
   LANDING_HERO_SUBTITLE:
     'Susun strategi cerdas untuk melunasi pinjol dan utang lainnya. Hemat bunga, hemat waktu, tanpa stres.',
   LANDING_CTA_BUTTON: 'Mulai Sekarang — Gratis',
+  LANDING_PRIVACY_NOTE:
+    'Tanpa daftar akun · 100% anonim · Semua data tersimpan di perangkatmu, bukan di server kami',
 
   LANDING_FEATURES_TITLE: 'Kenapa Memilih DebtClear?',
   LANDING_FEATURE_1_TITLE: 'Strategi Cerdas',

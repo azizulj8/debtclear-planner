@@ -85,6 +85,7 @@ DebtClear Planner adalah aplikasi perencana pelunasan utang personal untuk pasar
 - **Snowball**: melunasi utang dengan pokok terkecil dulu (motivasi psikologis).
 - **Avalanche**: melunasi utang dengan bunga tertinggi dulu (paling hemat bunga).
 - Pemilihan strategi via `StrategyPicker.js`; preferensi tersimpan di `localStorage`.
+- **Aturan pelunasan provider gabungan**: pinjaman-pinjaman di provider gabungan (Kredivo dkk.) di-merge jadi satu utang virtual di mesin simulasi (`mergeConsolidatedDebts`) — rencana pelunasan tidak pernah menyarankan melunasi salah satu pinjaman Kredivo saja, karena di dunia nyata itu tidak bisa dieksekusi. Bunga memakai rata-rata tertimbang pokok.
 
 ### 2.2 Simulasi Jadwal Pelunasan
 - Mesin kalkulasi di `src/utils/strategy.js` (`calculatePayoffSchedule`):
@@ -120,8 +121,9 @@ DebtClear Planner adalah aplikasi perencana pelunasan utang personal untuk pasar
 - Tanpa login, aplikasi tetap berfungsi penuh secara lokal.
 
 ### 4.2 Sinkronisasi Cloud (khusus Pro)
-- `src/utils/sync.js`: sinkronisasi dua arah antara IndexedDB lokal (Dexie) dan tabel `debts` di Supabase.
-- Mendukung antrian penghapusan offline (`deleted_debts`) — utang yang dihapus saat offline ikut dihapus di cloud saat sinkron berikutnya.
+- `src/utils/sync.js`: sinkronisasi dua arah antara IndexedDB lokal (Dexie) dan tabel `debts` + `payments` di Supabase (termasuk tenor, cicilan berjalan, dan provider).
+- Mendukung antrian penghapusan offline (`deleted_debts`, `deleted_payments`) — utang/status bayar yang dihapus saat offline ikut dihapus di cloud saat sinkron berikutnya; penghapusan utang meng-cascade riwayat pembayarannya di cloud.
+- Skema cloud: `supabase/migrations/20260713_payments_and_debt_fields.sql` (tabel `payments` dengan RLS per-user + kolom baru `debts`).
 - Indikator status sync (☁️) di header dashboard; UI mendengarkan event `sync-state-change`.
 - User Free diblokir dengan pesan "Fitur sinkronisasi cloud hanya untuk member Pro."
 
@@ -155,7 +157,8 @@ DebtClear Planner adalah aplikasi perencana pelunasan utang personal untuk pasar
 
 ## 7. Penyimpanan & Data
 
-- **Lokal (utama):** IndexedDB via Dexie (`src/utils/storage.js`), tabel `debts`, `deleted_debts`, dan `payments` (riwayat pembayaran per bulan). Perubahan data memicu event `local-db-changed` dan penjadwalan ulang notifikasi. Catatan: `payments` saat ini hanya tersimpan lokal (belum ikut cloud sync).
+- **Lokal (utama):** IndexedDB via Dexie (`src/utils/storage.js`), tabel `debts`, `deleted_debts`, `payments`, dan `deleted_payments`. Perubahan data memicu event `local-db-changed` dan penjadwalan ulang notifikasi.
+- **Positioning privasi:** app bisa dipakai 100% anonim — dikomunikasikan di landing ("data tersimpan di perangkatmu") dan notice sekali-tampil di dashboard yang jujur soal risikonya (data hilang jika data situs browser dihapus / uninstall) sekaligus mengarahkan ke backup cloud Pro.
 - **Preferensi:** `localStorage` (strategi, dana ekstra, tema).
 - **Cloud (Pro):** Supabase Postgres, tabel `debts` dan `subscriptions`.
 

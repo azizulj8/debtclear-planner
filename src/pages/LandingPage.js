@@ -28,6 +28,9 @@ export function renderLandingPage(container) {
           <button class="btn btn--primary" id="start-app-btn" style="padding: 12px 24px; font-size: 1.125rem;">
             ${STRINGS.LANDING_CTA_BUTTON}
           </button>
+          <p class="text-secondary mt-3" style="font-size: var(--font-size-sm);">
+            🔒 ${STRINGS.LANDING_PRIVACY_NOTE}
+          </p>
         </div>
       </section>
 

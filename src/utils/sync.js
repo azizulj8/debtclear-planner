@@ -1,5 +1,13 @@
 import { supabase } from './supabase.js';
-import { db, getAllDebts, getDeletedDebts, clearDeletedDebts } from './storage.js';
+import {
+  db,
+  getAllDebts,
+  getDeletedDebts,
+  clearDeletedDebts,
+  getAllPayments,
+  getDeletedPayments,
+  clearDeletedPayments,
+} from './storage.js';
 import { isProUser } from './premium.js';
 
 let isSyncing = false;
@@ -54,6 +62,13 @@ export async function syncAll(userId) {
         if (error) {
           console.warn(`Failed to delete remote debt local_id ${item.localId}:`, error);
         }
+
+        // Cascade: remove the deleted debt's payment history in the cloud
+        await supabase
+          .from('payments')
+          .delete()
+          .eq('user_id', userId)
+          .eq('debt_local_id', item.localId);
       }
       await clearDeletedDebts();
     }
@@ -95,6 +110,9 @@ export async function syncAll(userId) {
         due_date: Number(local.dueDate),
         is_paid_off: Boolean(local.isPaidOff),
         reminder_enabled: local.reminderEnabled !== false,
+        tenor_months: local.tenorMonths || null,
+        prior_payments: local.priorPayments || null,
+        provider_id: local.providerId || null,
         updated_at: new Date(local.updatedAt || local.createdAt || Date.now()).toISOString(),
       };
 
@@ -129,6 +147,9 @@ export async function syncAll(userId) {
             dueDate: remote.due_date,
             isPaidOff: remote.is_paid_off,
             reminderEnabled: remote.reminder_enabled,
+            tenorMonths: remote.tenor_months || null,
+            priorPayments: remote.prior_payments || null,
+            providerId: remote.provider_id || null,
             updatedAt: remoteTime
           });
         }
@@ -158,12 +179,18 @@ export async function syncAll(userId) {
             dueDate: remote.due_date,
             isPaidOff: remote.is_paid_off,
             reminderEnabled: remote.reminder_enabled,
+            tenorMonths: remote.tenor_months || null,
+            priorPayments: remote.prior_payments || null,
+            providerId: remote.provider_id || null,
             createdAt: new Date(remote.created_at || Date.now()).getTime(),
             updatedAt: new Date(remote.updated_at || Date.now()).getTime()
           });
         }
       }
     }
+
+    // 4. Sync payment records
+    await syncPayments(userId);
 
     console.log('Sync successfully completed.');
     window.dispatchEvent(new CustomEvent('sync-state-change', { detail: { syncing: false, error: false } }));
@@ -174,6 +201,71 @@ export async function syncAll(userId) {
     return { success: false, message: `Sinkronisasi gagal: ${err.message || 'Network error'}` };
   } finally {
     isSyncing = false;
+  }
+}
+
+/**
+ * Two-way sync of payment records (paid bills per month).
+ * Presence-based with an unmark queue: local unmarks delete remote rows,
+ * then local and remote are merged in both directions.
+ * @param {string} userId
+ */
+async function syncPayments(userId) {
+  // A. Process queued unmarks first so they are not resurrected by the pull
+  const unmarkQueue = await getDeletedPayments();
+  for (const item of unmarkQueue) {
+    const { error } = await supabase
+      .from('payments')
+      .delete()
+      .eq('user_id', userId)
+      .eq('debt_local_id', item.debtId)
+      .eq('month', item.month);
+    if (error) {
+      console.warn(`Failed to delete remote payment ${item.debtId}/${item.month}:`, error);
+      return; // keep the queue; retry next sync
+    }
+  }
+  await clearDeletedPayments();
+
+  // B. Push local payments to cloud (idempotent upsert)
+  const localPayments = await getAllPayments();
+  if (localPayments.length > 0) {
+    const payload = localPayments.map(p => ({
+      user_id: userId,
+      debt_local_id: p.debtId,
+      month: p.month,
+      amount: Number(p.amount) || 0,
+      paid_at: new Date(p.paidAt || Date.now()).toISOString(),
+    }));
+    const { error } = await supabase
+      .from('payments')
+      .upsert(payload, { onConflict: 'user_id,debt_local_id,month' });
+    if (error) console.error('Error pushing payments to cloud:', error);
+  }
+
+  // C. Pull remote payments recorded on other devices
+  const { data: remotePayments, error: fetchError } = await supabase
+    .from('payments')
+    .select('*')
+    .eq('user_id', userId);
+  if (fetchError) {
+    console.error('Error fetching remote payments:', fetchError);
+    return;
+  }
+
+  const localKeys = new Set(localPayments.map(p => `${p.debtId}:${p.month}`));
+  const localDebtIds = new Set((await getAllDebts()).map(d => d.id));
+  for (const remote of remotePayments || []) {
+    const key = `${remote.debt_local_id}:${remote.month}`;
+    // Only pull payments for debts that exist locally (debts sync ran first)
+    if (!localKeys.has(key) && localDebtIds.has(remote.debt_local_id)) {
+      await db.payments.add({
+        debtId: remote.debt_local_id,
+        month: remote.month,
+        amount: Number(remote.amount) || 0,
+        paidAt: new Date(remote.paid_at || Date.now()).getTime(),
+      });
+    }
   }
 }
 

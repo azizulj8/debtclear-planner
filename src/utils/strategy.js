@@ -1,3 +1,5 @@
+import { mergeConsolidatedDebts } from './billGrouping.js';
+
 /**
  * Sorts debts according to the selected strategy.
  * @param {Array} debts - Array of debt objects
@@ -27,7 +29,10 @@ export function sortByStrategy(debts, strategy) {
  * @returns {Object} { schedule: Array, totalInterest: number, months: number, isInfinite: boolean }
  */
 export function calculatePayoffSchedule(debts, strategy, extraPayment = 0) {
-  const activeDebts = debts.filter(d => !d.isPaidOff).map(d => ({
+  // Consolidated providers (Kredivo etc.) demand full settlement at once,
+  // so their loans are one indivisible debt for the strategy engine
+  const mergedDebts = mergeConsolidatedDebts(debts.filter(d => !d.isPaidOff));
+  const activeDebts = mergedDebts.filter(d => !d.isPaidOff).map(d => ({
     id: d.id,
     name: d.name,
     type: d.type,

@@ -31,7 +31,7 @@ Form capture 15 detik dengan 3 field sesuai cara pinjol berkomunikasi:
 ## Next
 
 ### 5. Provider sebagai Entitas (Grouping & Aturan Tagihan) — ✅ SHIPPED 12 Jul 2026
-*(Termasuk total "lunasi semua sekarang" per provider gabungan. Aturan pelunasan-dini di mesin Snowball/Avalanche masih belum — kandidat penyempurnaan berikutnya.)*
+*(Termasuk total "lunasi semua sekarang" per provider gabungan, dan aturan pelunasan-dini di mesin Snowball/Avalanche — pinjaman provider gabungan di-merge jadi satu utang virtual.)*
 Unit pencatatan = pinjaman, unit tagihan = provider. Tiap provider punya aturan berbeda:
 - **Cara menagih:** gabungan (Kredivo: semua pinjaman aktif terakumulasi jadi 1 tagihan bulanan) vs per-pinjaman (SPayLater: tiap pinjaman berdiri sendiri).
 - **Cara bayar:** autodebit (kartu kredit — reminder berubah jadi "pastikan saldo cukup H-1"; konfirmasi "terpotong sukses/gagal", bukan checkbox bayar) vs manual.
@@ -50,8 +50,8 @@ Unit pencatatan = pinjaman, unit tagihan = provider. Tiap provider punya aturan 
 - Tangkap SMS/notifikasi pencairan pinjol → konfirmasi satu tap untuk mencatat.
 - **Ditahan:** permission sensitif, isu privasi, review Play Store ketat untuk app finansial. Baru layak setelah terbukti user yang diberi cara mudah pun konsisten mencatat.
 
-### 8. Sinkronisasi tabel `payments` ke cloud (Pro)
-- Riwayat pembayaran saat ini hanya lokal; belum ikut sync Supabase.
+### 8. Sinkronisasi tabel `payments` ke cloud (Pro) — ✅ SHIPPED 13 Jul 2026
+- Two-way sync payments + field baru debts (tenor, prior payments, provider). Perlu migrasi SQL: `supabase/migrations/20260713_payments_and_debt_fields.sql`.
 
 ## Catatan produk
 - Value loop: **Audit** (temukan semua utang) → **Takar** (sadar posisi) → **Capture cepat** (catat 15 detik) → kembali ke Takar.

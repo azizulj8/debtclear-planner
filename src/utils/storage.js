@@ -19,6 +19,14 @@ db.version(3).stores({
   payments: '++id, debtId, month, [debtId+month], paidAt'
 })
 
+// v4: queue of payment unmarks for cloud sync
+db.version(4).stores({
+  debts: '++id, name, type, principal, interestRate, minPayment, dueDate, isPaidOff, createdAt',
+  deleted_debts: '++id, localId, updatedAt',
+  payments: '++id, debtId, month, [debtId+month], paidAt',
+  deleted_payments: '++id, debtId, month'
+})
+
 /**
  * Returns the month key ("YYYY-MM") for a given date.
  * @param {Date} [date]
@@ -170,6 +178,8 @@ export async function clearDeletedDebts() {
  * @returns {Promise<number>} The payment record ID
  */
 export async function markBillPaid(debtId, month, amount) {
+  // Cancel any queued deletion for this bill
+  await db.deleted_payments.where('debtId').equals(debtId).and(p => p.month === month).delete();
   const existing = await db.payments.where('[debtId+month]').equals([debtId, month]).first();
   let id;
   if (existing) {
@@ -194,6 +204,8 @@ export async function markBillPaid(debtId, month, amount) {
  */
 export async function unmarkBillPaid(debtId, month) {
   await db.payments.where('[debtId+month]').equals([debtId, month]).delete();
+  // Queue the unmark so cloud sync deletes it remotely too
+  await db.deleted_payments.add({ debtId, month });
   await refreshPaidOffStatus(debtId);
   await rescheduleReminders(await getAllDebts());
   if (typeof window !== 'undefined') {
@@ -218,6 +230,30 @@ export async function getPaymentsByMonth(month) {
 export async function getPaymentsByDebt(debtId) {
   const list = await db.payments.where('debtId').equals(debtId).toArray();
   return list.sort((a, b) => b.month.localeCompare(a.month));
+}
+
+/**
+ * Gets all locally unmarked payments queued for cloud sync.
+ * @returns {Promise<Array>}
+ */
+export async function getDeletedPayments() {
+  return await db.deleted_payments.toArray();
+}
+
+/**
+ * Clears the queue of unmarked payments after successful cloud sync.
+ * @returns {Promise<void>}
+ */
+export async function clearDeletedPayments() {
+  return await db.deleted_payments.clear();
+}
+
+/**
+ * Retrieves all payment records.
+ * @returns {Promise<Array>}
+ */
+export async function getAllPayments() {
+  return await db.payments.toArray();
 }
 
 /**

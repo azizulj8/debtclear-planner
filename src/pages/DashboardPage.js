@@ -94,6 +94,7 @@ export async function renderDashboardPage(container) {
 
         <!-- Right Side: Monthly bills checklist and active debts list -->
         <div class="dashboard-list-section">
+          <div id="privacy-notice-container"></div>
           <div id="income-ratio-container"></div>
           <div id="monthly-bills-container"></div>
           <div id="debt-list-container"></div>
@@ -236,6 +237,33 @@ export async function renderDashboardPage(container) {
 
   // Render monthly combined bills checklist; refresh list & simulation
   // when a payment is (un)marked since it can change paid-off status
+  // One-time privacy/storage notice: data is device-local and anonymous,
+  // but clearing browser site data erases it
+  const noticeContainer = container.querySelector('#privacy-notice-container');
+  if (!localStorage.getItem('debtclear_privacy_notice_dismissed')) {
+    noticeContainer.innerHTML = `
+      <div class="card mb-6" style="border-left: 4px solid var(--color-info);">
+        <div class="flex justify-between items-start gap-3">
+          <div>
+            <h3 class="font-bold mb-1" style="font-size: var(--font-size-md);">🔒 Datamu 100% di perangkat ini</h3>
+            <p class="text-secondary" style="font-size: var(--font-size-sm);">
+              DebtClear bisa dipakai <strong>anonim tanpa daftar</strong> — semua data utangmu tersimpan
+              di HP/browser-mu sendiri, tidak pernah dikirim ke server kami.
+              Konsekuensinya: data akan <strong>hilang jika kamu menghapus data situs browser</strong>
+              (bukan sekadar cache) atau uninstall aplikasi. Ingin aman antar-perangkat?
+              Login + upgrade Pro untuk backup cloud otomatis.
+            </p>
+          </div>
+          <button type="button" class="btn btn--secondary btn--sm" id="privacy-notice-dismiss" title="Tutup">✕</button>
+        </div>
+      </div>
+    `;
+    noticeContainer.querySelector('#privacy-notice-dismiss').addEventListener('click', () => {
+      localStorage.setItem('debtclear_privacy_notice_dismissed', '1');
+      noticeContainer.innerHTML = '';
+    });
+  }
+
   const ratioContainer = container.querySelector('#income-ratio-container');
   const billsContainer = container.querySelector('#monthly-bills-container');
   renderIncomeRatio(ratioContainer, debts);

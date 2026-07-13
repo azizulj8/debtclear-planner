@@ -37,3 +37,37 @@ export function groupBillsByProvider(debts) {
   const dueOf = row => (row.type === 'group' ? row.dueDate : row.debt.dueDate);
   return rows.sort((a, b) => dueOf(a) - dueOf(b));
 }
+
+/**
+ * Merges consolidated-provider debts into one virtual debt for the payoff
+ * strategy engine. Kredivo-style providers demand full settlement across
+ * all loans at once, so Snowball/Avalanche cannot eliminate one of their
+ * loans separately — treating them as a single debt keeps the plan
+ * executable in the real world.
+ *
+ * @param {Array} debts
+ * @returns {Array} Debts with each consolidated provider collapsed into one
+ */
+export function mergeConsolidatedDebts(debts) {
+  const rows = groupBillsByProvider(debts);
+  return rows.map(row => {
+    if (row.type === 'single') return row.debt;
+
+    const principal = row.debts.reduce((s, d) => s + d.principal, 0);
+    // Weighted average rate so total interest stays representative
+    const weightedRate = principal > 0
+      ? row.debts.reduce((s, d) => s + d.interestRate * d.principal, 0) / principal
+      : 0;
+
+    return {
+      id: `provider:${row.provider.id}`,
+      name: `${row.provider.name} (gabungan)`,
+      type: row.debts[0].type,
+      principal,
+      minPayment: row.total,
+      interestRate: Math.round(weightedRate * 10) / 10,
+      dueDate: row.dueDate,
+      isPaidOff: false,
+    };
+  });
+}

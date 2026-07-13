@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { groupBillsByProvider } from '../src/utils/billGrouping.js'
+import { groupBillsByProvider, mergeConsolidatedDebts } from '../src/utils/billGrouping.js'
 import { findProviderPreset } from '../src/data/auditProviders.js'
 
 describe('Bill Grouping', () => {
@@ -36,6 +36,31 @@ describe('Bill Grouping', () => {
     expect(rows.map(r => (r.type === 'group' ? r.provider.id : r.debt.name))).toEqual([
       'kredivo', 'Pinjol Z', 'KPR',
     ])
+  })
+})
+
+describe('mergeConsolidatedDebts', () => {
+  it('should merge consolidated-provider debts into one virtual debt', () => {
+    const debts = [
+      { id: 1, name: 'Kredivo HP', type: 'PayLater', principal: 2000000, minPayment: 500000, interestRate: 60, dueDate: 10, providerId: 'kredivo' },
+      { id: 2, name: 'Kredivo Laptop', type: 'PayLater', principal: 1000000, minPayment: 300000, interestRate: 90, dueDate: 5, providerId: 'kredivo' },
+      { id: 3, name: 'AdaKami', type: 'Pinjol', principal: 500000, minPayment: 200000, interestRate: 100, dueDate: 20, providerId: 'adakami' },
+    ]
+    const merged = mergeConsolidatedDebts(debts)
+    expect(merged).toHaveLength(2)
+    const kredivo = merged.find(d => String(d.id).startsWith('provider:'))
+    expect(kredivo.principal).toBe(3000000)
+    expect(kredivo.minPayment).toBe(800000)
+    expect(kredivo.interestRate).toBe(70) // weighted: (60*2jt + 90*1jt) / 3jt
+    expect(kredivo.dueDate).toBe(5)
+  })
+
+  it('should leave per-loan and provider-less debts untouched', () => {
+    const debts = [
+      { id: 1, name: 'SPayLater A', principal: 100, minPayment: 10, interestRate: 50, dueDate: 5, providerId: 'spaylater' },
+      { id: 2, name: 'KPR', principal: 200, minPayment: 20, interestRate: 10, dueDate: 1 },
+    ]
+    expect(mergeConsolidatedDebts(debts)).toHaveLength(2)
   })
 })
 

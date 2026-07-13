@@ -93,15 +93,18 @@ DebtClear Planner adalah aplikasi perencana pelunasan utang personal untuk pasar
   - Anggaran bulanan tetap = total cicilan minimum awal + dana ekstra (metode rollover: cicilan utang yang lunas dialihkan ke utang berikutnya).
   - Output: jadwal per bulan, total bunga yang dibayar, lama pelunasan, dan deteksi kondisi "tak terhingga" (cicilan tidak menutup bunga).
 
-### 2.3 Perbandingan Strategi
-- `StrategyComparison.js` menampilkan Snowball vs Avalanche berdampingan: lama pelunasan dan total bunga masing-masing.
+### 2.3 Rencana Aksi Bulan Ini
+- Kotak berbahasa awam di atas halaman Strategi yang menerjemahkan simulasi jadi perintah: (1) total minimum yang wajib dibayar, (2) utang target untuk uang lebih beserta alasannya sesuai metode terpilih, (3) dampak riil uang lebih ("lunas N bulan lebih cepat, hemat bunga Rp X") — atau teaser saran nominal jika slider masih Rp 0.
+
+### 2.4 Perbandingan Strategi
+- `StrategyComparison.js` menampilkan Snowball vs Avalanche berdampingan **hanya jika hasilnya berbeda**; jika identik (umum saat uang lebih Rp 0), diganti penjelasan jujur bahwa perbedaan baru muncul saat ada uang lebih.
 - Strategi paling hemat diberi badge "Paling Hemat", plus estimasi bunga dan bulan yang dihemat.
 
-### 2.4 Anggaran Tambahan (Snowflake)
+### 2.5 Uang Lebih per Bulan (Snowflake)
 - `ExtraPayment.js`: input dana ekstra bulanan via kolom rupiah atau slider (Rp 0 – Rp 5.000.000, step Rp 100.000).
 - Perubahan langsung memicu kalkulasi ulang simulasi (dengan debounce). Nilai tersimpan di `localStorage`.
 
-### 2.5 Grafik Proyeksi
+### 2.6 Grafik Proyeksi
 - `TimelineChart.js` (Chart.js): grafik proyeksi penurunan saldo utang dari waktu ke waktu.
 
 ---

@@ -10,6 +10,23 @@ export function renderStrategyComparison(container, debts, extraPayment = 0) {
   const comparison = compareStrategies(debts, extraPayment);
   const { snowball, avalanche, betterStrategy, interestSaved, monthsSaved } = comparison;
 
+  // Identical results (common with few debts or zero extra money):
+  // an honest sentence beats two identical columns
+  if (interestSaved === 0 && monthsSaved === 0) {
+    container.innerHTML = `
+      <div class="card comparison-card mb-6">
+        <h3 class="font-bold mb-2" style="font-size: var(--font-size-lg);">Snowball vs Avalanche?</h3>
+        <p class="text-secondary" style="font-size: var(--font-size-sm);">
+          Dengan kondisi utangmu sekarang, <strong>kedua metode memberi hasil yang persis sama</strong>
+          (${snowball.isInfinite ? 'cicilan belum menutup bunga' : `lunas ${snowball.months} bulan, total bunga ${formatRupiah(snowball.totalInterest)}`}).
+          Perbedaannya baru muncul kalau kamu punya <strong>uang lebih</strong> untuk diprioritaskan —
+          coba isi "Uang Lebih per Bulan" di atas, lalu lihat lagi perbandingan ini.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
   const snowballWinner = betterStrategy === 'snowball';
   const avalancheWinner = betterStrategy === 'avalanche';
 

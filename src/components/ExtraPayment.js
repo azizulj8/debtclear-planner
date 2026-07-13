@@ -9,8 +9,8 @@ export function renderExtraPayment(container, initialExtra, onExtraChange) {
       <div class="card extra-payment-card mb-6">
         <div class="flex justify-between items-center mb-3">
           <div>
-            <h3 class="font-bold mb-1" style="font-size: var(--font-size-lg);">💵 Anggaran Tambahan Bulanan (Snowflake)</h3>
-            <p class="text-secondary" style="font-size: var(--font-size-xs);">Dana ekstra yang bisa Anda alokasikan per bulan untuk mempercepat pelunasan.</p>
+            <h3 class="font-bold mb-1" style="font-size: var(--font-size-lg);">💵 Uang Lebih per Bulan</h3>
+            <p class="text-secondary" style="font-size: var(--font-size-xs);">Berapa yang sanggup kamu sisihkan tiap bulan di luar semua cicilan minimum? Rp 0 tidak apa-apa — geser untuk lihat efeknya ke tanggal bebas utangmu.</p>
           </div>
           <div class="extra-input-wrapper">
             <input type="text" id="extra-payment-input" class="form-input text-right font-bold text-primary" style="width: 180px; font-size: var(--font-size-md);" placeholder="Rp 0" value="${currentValue > 0 ? formatRupiah(currentValue) : ''}" />

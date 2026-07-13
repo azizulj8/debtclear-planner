@@ -16,7 +16,7 @@ export async function renderDebtForm(container) {
     existingDebt = await getDebt(editId);
     if (!existingDebt) {
       alert('Utang tidak ditemukan!');
-      window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/dashboard' } }));
+      window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/debts' } }));
       return;
     }
   }
@@ -24,7 +24,7 @@ export async function renderDebtForm(container) {
   const title = existingDebt ? `Edit Utang: ${existingDebt.name}` : STRINGS.FORM_ADD_DEBT_TITLE;
 
   container.innerHTML = `
-    <div class="container mt-4 mb-4">
+    <div style="max-width: 640px;">
       <div class="card debt-form-card">
         <div class="flex justify-between items-center mb-4">
           <h2 class="section-title" style="text-align:left; margin-bottom:0;">${title}</h2>
@@ -247,7 +247,7 @@ function setupEventListeners(container, existingDebt) {
   });
 
   btnCancel.addEventListener('click', () => {
-    window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/dashboard' } }));
+    window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/debts' } }));
   });
 
   form.addEventListener('submit', async (e) => {
@@ -288,7 +288,7 @@ function setupEventListeners(container, existingDebt) {
         await addDebt(formData);
       }
       
-      window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/dashboard' } }));
+      window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/debts' } }));
       
     } catch (err) {
       console.error('Failed to save debt:', err);

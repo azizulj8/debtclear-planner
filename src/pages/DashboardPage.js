@@ -1,245 +1,90 @@
-import { STRINGS } from '../data/strings.js';
-import { renderStrategyPicker } from '../components/StrategyPicker.js';
-import { renderExtraPayment } from '../components/ExtraPayment.js';
-import { renderTimelineChart } from '../components/TimelineChart.js';
-import { renderStrategyComparison } from '../components/StrategyComparison.js';
-import { renderCsvImport } from '../components/CsvImport.js';
-import { renderDebtList } from '../components/DebtList.js';
-import { renderMonthlyBills } from '../components/MonthlyBills.js';
+import { renderAppShell } from '../components/AppShell.js';
 import { renderIncomeRatio } from '../components/IncomeRatio.js';
-import { getAllDebts } from '../utils/storage.js';
+import { formatRupiah } from '../utils/format.js';
+import { getAllDebts, getPaymentsByMonth, getMonthKey } from '../utils/storage.js';
 import { calculatePayoffSchedule } from '../utils/strategy.js';
-import { exportToPdf } from '../utils/pdfExport.js';
-import { getCurrentUser, signOut } from '../utils/supabase.js';
-import { renderAuthModal } from '../components/AuthModal.js';
 
+const navigate = (path) => {
+  window.dispatchEvent(new CustomEvent('navigate', { detail: { path } }));
+};
+
+/**
+ * Dashboard overview: Takar meter, headline stats, and quick actions.
+ * Detailed features live on their own menu pages (Tagihan, Utang Saya,
+ * Strategi, Audit, Simulasi).
+ * @param {HTMLElement} container
+ */
 export async function renderDashboardPage(container) {
+  const content = await renderAppShell(container, { title: 'Dashboard', active: 'dashboard' });
+
   let debts = [];
+  let payments = [];
   try {
     debts = await getAllDebts();
+    payments = await getPaymentsByMonth(getMonthKey());
   } catch (err) {
-    console.error('Failed to load debts:', err);
+    console.error('Failed to load data:', err);
   }
 
-  // Load preferences
-  let currentStrategy = localStorage.getItem('debtclear_strategy') || 'snowball';
-  let currentExtraPayment = parseInt(localStorage.getItem('debtclear_extra_payment') || '0', 10);
-  const currentTheme = localStorage.getItem('debtclear_theme') || 'dark';
+  const activeDebts = debts.filter(d => !d.isPaidOff);
+  const totalPrincipal = activeDebts.reduce((s, d) => s + d.principal, 0);
+  const monthlyBill = activeDebts.reduce((s, d) => s + d.minPayment, 0);
+  const paidDebtIds = new Set(payments.map(p => p.debtId));
+  const remainingBill = activeDebts.reduce(
+    (s, d) => s + (paidDebtIds.has(d.id) ? 0 : d.minPayment), 0
+  );
 
-  // Get current authenticated user
-  const currentUser = await getCurrentUser();
+  const strategy = localStorage.getItem('debtclear_strategy') || 'snowball';
+  const extra = parseInt(localStorage.getItem('debtclear_extra_payment') || '0', 10);
+  const payoff = calculatePayoffSchedule(debts, strategy, extra);
+  const freeDate = payoff.isInfinite
+    ? '∞'
+    : (payoff.schedule.length ? payoff.schedule[payoff.schedule.length - 1].month : '—');
 
-  const authSectionHTML = currentUser 
-    ? `
-      <div class="flex items-center gap-2" style="font-size: var(--font-size-sm);">
-        <span id="sync-indicator" title="Tersinkronisasi dengan cloud" style="cursor: help; opacity: 0.8; font-size: 1.1rem; display: inline-block;">☁️</span>
-        <span class="text-secondary" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${currentUser.email}</span>
-        <button type="button" class="btn btn--secondary btn--sm" id="btn-auth-logout" style="padding: 4px 8px;">Keluar</button>
+  content.innerHTML = `
+    <div id="privacy-notice-container"></div>
+    <div id="income-ratio-container"></div>
+
+    <div class="stat-grid mb-6">
+      <div class="card">
+        <div class="stat-card__label">💳 Total Utang Aktif</div>
+        <div class="stat-card__value text-primary">${formatRupiah(totalPrincipal)}</div>
+        <span class="text-secondary" style="font-size: var(--font-size-xs);">${activeDebts.length} utang tercatat</span>
       </div>
-    `
-    : `
-      <button type="button" class="btn btn--primary btn--sm" id="btn-auth-trigger" style="padding: 6px 12px; font-weight:600;">
-        🔑 Masuk / Daftar
-      </button>
-    `;
+      <div class="card">
+        <div class="stat-card__label">🧾 Tagihan Bulan Ini</div>
+        <div class="stat-card__value">${formatRupiah(monthlyBill)}</div>
+        <span class="text-secondary" style="font-size: var(--font-size-xs);">Sisa belum dibayar: <strong class="${remainingBill > 0 ? 'text-danger' : 'text-primary'}">${formatRupiah(remainingBill)}</strong></span>
+      </div>
+      <div class="card">
+        <div class="stat-card__label">🎯 Bebas Utang Pada</div>
+        <div class="stat-card__value ${payoff.isInfinite ? 'text-danger' : ''}">${freeDate}</div>
+        <span class="text-secondary" style="font-size: var(--font-size-xs);">${payoff.isInfinite ? 'Cicilan belum menutup bunga' : `${payoff.months} bulan lagi · total bunga ${formatRupiah(payoff.totalInterest)}`}</span>
+      </div>
+    </div>
 
+    <h3 class="font-bold mb-3" style="font-size: var(--font-size-md);">Aksi Cepat</h3>
+    <div class="quick-actions mb-6">
+      <button type="button" class="btn btn--primary" data-nav="/quick-add">⚡ Catat Pinjaman</button>
+      <button type="button" class="btn btn--secondary" data-nav="/bills">🧾 Bayar Tagihan</button>
+      <button type="button" class="btn btn--secondary" data-nav="/audit">🔍 Audit Utang</button>
+      <button type="button" class="btn btn--secondary" data-nav="/simulate">🧮 Mau Pinjam Lagi?</button>
+    </div>
 
-  // Base shell
-  container.innerHTML = `
-    <header class="app-header">
-      <div class="container flex justify-between items-center relative">
-        <div class="brand-logo" id="logo-dashboard" style="cursor: pointer;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-          </svg>
-          ${STRINGS.APP_NAME}
-        </div>
-        
-        <!-- Burger Button for Mobile -->
-        <button type="button" class="burger-menu-btn" id="burger-menu-trigger" aria-label="Menu">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-
-        <div class="nav-menu" id="nav-menu-container">
-          ${authSectionHTML}
-          <button type="button" class="btn btn--secondary btn--sm" id="btn-audit-trigger" style="gap:var(--spacing-1);">
-            🔍 Audit Utang
-          </button>
-          <button type="button" class="btn btn--secondary btn--sm" id="btn-csv-trigger" style="gap:var(--spacing-1);">
-            📂 Import CSV
-          </button>
-          <button type="button" class="btn btn--secondary btn--sm" id="btn-pdf-trigger" style="gap:var(--spacing-1);">
-            📄 Export PDF
-          </button>
-          <button type="button" class="btn btn--secondary btn--sm" id="btn-theme-toggle" style="padding: 6px 10px;">
-            ${currentTheme === 'light' ? '🌙' : '☀️'}
-          </button>
+    ${activeDebts.length === 0 ? `
+      <div class="card text-center" style="padding: var(--spacing-8);">
+        <h3 class="font-bold mb-2">Belum ada utang tercatat</h3>
+        <p class="text-secondary mb-4" style="font-size: var(--font-size-sm);">Mulai dengan audit 2 menit untuk menemukan semua pinjamanmu, atau catat satu pinjaman sekarang.</p>
+        <div class="flex gap-2 justify-center flex-wrap">
+          <button type="button" class="btn btn--primary" data-nav="/audit">🔍 Mulai Audit</button>
+          <button type="button" class="btn btn--secondary" data-nav="/quick-add">⚡ Catat Cepat</button>
         </div>
       </div>
-    </header>
-
-
-
-    <main class="container mt-4 mb-12">
-      <div class="dashboard-layout grid-main">
-        <!-- Left Side: Calculation controls, Visual charts and Comparisons -->
-        <div class="dashboard-controls-section">
-          <div id="strategy-picker-container"></div>
-          <div id="extra-payment-container"></div>
-          <div id="timeline-chart-container"></div>
-          <div id="strategy-comparison-container"></div>
-        </div>
-
-        <!-- Right Side: Monthly bills checklist and active debts list -->
-        <div class="dashboard-list-section">
-          <div id="privacy-notice-container"></div>
-          <div id="income-ratio-container"></div>
-          <div id="monthly-bills-container"></div>
-          <div id="debt-list-container"></div>
-        </div>
-      </div>
-    </main>
+    ` : ''}
   `;
 
-  // Attach Burger Menu Toggle
-  const burgerTrigger = container.querySelector('#burger-menu-trigger');
-  const navMenu = container.querySelector('#nav-menu-container');
-  if (burgerTrigger && navMenu) {
-    burgerTrigger.addEventListener('click', (e) => {
-      e.stopPropagation();
-      burgerTrigger.classList.toggle('active');
-      navMenu.classList.toggle('active');
-    });
-
-    // Close menu when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!navMenu.contains(e.target) && e.target !== burgerTrigger) {
-        burgerTrigger.classList.remove('active');
-        navMenu.classList.remove('active');
-      }
-    });
-
-    // Close menu when clicking any button inside
-    navMenu.querySelectorAll('button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        burgerTrigger.classList.remove('active');
-        navMenu.classList.remove('active');
-      });
-    });
-  }
-
-  // Attach Auth handlers
-  const authTrigger = container.querySelector('#btn-auth-trigger');
-  if (authTrigger) {
-    authTrigger.addEventListener('click', () => {
-      renderAuthModal(() => {
-        // Refresh page on successful login
-        renderDashboardPage(container);
-      });
-    });
-  }
-
-  const authLogout = container.querySelector('#btn-auth-logout');
-  if (authLogout) {
-    authLogout.addEventListener('click', async () => {
-      await signOut();
-      renderDashboardPage(container);
-    });
-  }
-
-  // Attach CSV import modal trigger
-  const csvImport = renderCsvImport(container, async () => {
-    // Refresh page data on successful import
-    renderDashboardPage(container);
-  });
-
-  const triggerCsv = container.querySelector('#btn-csv-trigger');
-  if (triggerCsv) {
-    triggerCsv.addEventListener('click', () => csvImport.open());
-  }
-
-  // Audit page trigger
-  const auditTrigger = container.querySelector('#btn-audit-trigger');
-  if (auditTrigger) {
-    auditTrigger.addEventListener('click', () => {
-      window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/audit' } }));
-    });
-  }
-
-  // Logo home navigation
-  container.querySelector('#logo-dashboard').addEventListener('click', () => {
-    window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/' } }));
-  });
-
-
-  // Theme switcher
-  const themeBtn = container.querySelector('#btn-theme-toggle');
-  themeBtn.addEventListener('click', () => {
-    const activeTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = activeTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('debtclear_theme', newTheme);
-    themeBtn.textContent = newTheme === 'light' ? '🌙' : '☀️';
-    
-    // Re-render chart to update grid line colors dynamically
-    updateSimulation();
-  });
-
-  const strategyContainer = container.querySelector('#strategy-picker-container');
-  const extraPaymentContainer = container.querySelector('#extra-payment-container');
-  const chartContainer = container.querySelector('#timeline-chart-container');
-  const comparisonContainer = container.querySelector('#strategy-comparison-container');
-  const listContainer = container.querySelector('#debt-list-container');
-
-  const updateSimulation = () => {
-    // Recalculate schedule
-    const payoffData = calculatePayoffSchedule(debts, currentStrategy, currentExtraPayment);
-
-    // Render components
-    renderTimelineChart(chartContainer, payoffData);
-    renderStrategyComparison(comparisonContainer, debts, currentExtraPayment);
-    
-    // Enable/disable PDF export trigger based on data
-    const triggerPdf = container.querySelector('#btn-pdf-trigger');
-    if (triggerPdf) {
-      if (debts.length === 0 || payoffData.isInfinite) {
-        triggerPdf.disabled = true;
-        triggerPdf.style.opacity = '0.5';
-      } else {
-        triggerPdf.disabled = false;
-        triggerPdf.style.opacity = '1';
-      }
-    }
-  };
-
-  // PDF Export Trigger
-  const triggerPdf = container.querySelector('#btn-pdf-trigger');
-  if (triggerPdf) {
-    triggerPdf.addEventListener('click', () => {
-      const payoffData = calculatePayoffSchedule(debts, currentStrategy, currentExtraPayment);
-      exportToPdf(debts, currentStrategy, currentExtraPayment, payoffData);
-    });
-  }
-
-  // Render initial strategy selection
-  renderStrategyPicker(strategyContainer, currentStrategy, (newStrategy) => {
-    currentStrategy = newStrategy;
-    updateSimulation();
-  });
-
-  // Render initial extra payment control
-  renderExtraPayment(extraPaymentContainer, currentExtraPayment, (newExtra) => {
-    currentExtraPayment = newExtra;
-    updateSimulation();
-  });
-
-  // Render monthly combined bills checklist; refresh list & simulation
-  // when a payment is (un)marked since it can change paid-off status
-  // One-time privacy/storage notice: data is device-local and anonymous,
-  // but clearing browser site data erases it
-  const noticeContainer = container.querySelector('#privacy-notice-container');
+  // One-time privacy/storage notice
+  const noticeContainer = content.querySelector('#privacy-notice-container');
   if (!localStorage.getItem('debtclear_privacy_notice_dismissed')) {
     noticeContainer.innerHTML = `
       <div class="card mb-6" style="border-left: 4px solid var(--color-info);">
@@ -264,64 +109,9 @@ export async function renderDashboardPage(container) {
     });
   }
 
-  const ratioContainer = container.querySelector('#income-ratio-container');
-  const billsContainer = container.querySelector('#monthly-bills-container');
-  renderIncomeRatio(ratioContainer, debts);
-  renderMonthlyBills(billsContainer, debts, async () => {
-    debts = await getAllDebts();
-    updateSimulation();
-    renderIncomeRatio(ratioContainer, debts);
-    renderDebtList(listContainer);
+  renderIncomeRatio(content.querySelector('#income-ratio-container'), debts);
+
+  content.querySelectorAll('[data-nav]').forEach(btn => {
+    btn.addEventListener('click', () => navigate(btn.getAttribute('data-nav')));
   });
-
-  // Render active list
-  renderDebtList(listContainer);
-
-  // Run initial simulation
-  updateSimulation();
-
-  // Listen to cloud sync state changes to update the UI indicator
-  if (typeof window !== 'undefined') {
-    window.addEventListener('sync-state-change', (e) => {
-      const { syncing, error } = e.detail;
-      const indicator = container.querySelector('#sync-indicator');
-      if (indicator) {
-        if (syncing) {
-          indicator.textContent = '🔄';
-          indicator.title = 'Sedang mensinkronisasi dengan cloud...';
-          indicator.classList.add('spinning');
-          // Add inline rotation style since keyframe animation might not be defined
-          indicator.style.animation = 'spin 1s linear infinite';
-        } else if (error) {
-          indicator.textContent = '⚠️';
-          indicator.title = 'Sinkronisasi gagal. Cek koneksi internet Anda.';
-          indicator.style.animation = 'none';
-        } else {
-          indicator.textContent = '☁️';
-          indicator.title = 'Tersinkronisasi dengan cloud';
-          indicator.style.animation = 'none';
-        }
-      }
-    });
-  }
-
-  // Trigger background sync on page load if authenticated
-  if (currentUser) {
-    import('../utils/sync.js').then(async ({ syncAll }) => {
-      const result = await syncAll(currentUser.id);
-      if (result.success) {
-        // Sync completed. Refresh the debts list and re-run simulation to show new/merged data
-        try {
-          debts = await getAllDebts();
-          updateSimulation();
-          renderIncomeRatio(ratioContainer, debts);
-          renderMonthlyBills(billsContainer, debts);
-          renderDebtList(listContainer);
-        } catch (err) {
-          console.error('Failed to reload debts after sync:', err);
-        }
-      }
-    });
-  }
 }
-

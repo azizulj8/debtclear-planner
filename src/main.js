@@ -9,6 +9,10 @@ import { renderDebtDetailPage } from './pages/DebtDetailPage.js';
 import { renderQuickAddPage } from './pages/QuickAddPage.js';
 import { renderAuditPage } from './pages/AuditPage.js';
 import { renderSimulatePage } from './pages/SimulatePage.js';
+import { renderBillsPage } from './pages/BillsPage.js';
+import { renderDebtsPage } from './pages/DebtsPage.js';
+import { renderStrategyPage } from './pages/StrategyPage.js';
+import { renderAppShell } from './components/AppShell.js';
 import { requestNotificationPermission, scheduleNativeReminders } from './utils/notifications.js';
 import { getAllDebts, backfillProviderIds } from './utils/storage.js';
 import { SplashScreen } from '@capacitor/splash-screen';
@@ -38,8 +42,17 @@ function renderRoute(path) {
     renderDashboardPage(appContainer);
   } else if (cleanPath === '/pricing') {
     renderPricingPage(appContainer);
+  } else if (cleanPath === '/bills') {
+    renderBillsPage(appContainer);
+  } else if (cleanPath === '/debts') {
+    renderDebtsPage(appContainer);
+  } else if (cleanPath === '/strategy') {
+    renderStrategyPage(appContainer);
   } else if (cleanPath === '/add-debt' || cleanPath === '/edit-debt') {
-    renderDebtForm(appContainer);
+    renderAppShell(appContainer, {
+      title: cleanPath === '/add-debt' ? 'Tambah Utang' : 'Edit Utang',
+      active: 'debts',
+    }).then(content => renderDebtForm(content));
   } else if (cleanPath === '/debt-detail') {
     renderDebtDetailPage(appContainer);
   } else if (cleanPath === '/quick-add') {

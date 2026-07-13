@@ -1,4 +1,4 @@
-import { STRINGS } from '../data/strings.js';
+import { renderAppShell } from '../components/AppShell.js';
 import { formatRupiah, parseRupiah } from '../utils/format.js';
 import { deriveDebtFromQuickAdd } from '../utils/quickAdd.js';
 import { getMonthlyCommitment, computeRatio, getStoredIncome } from '../utils/ratio.js';
@@ -18,6 +18,8 @@ function zoneChip(ratio) {
  * @param {HTMLElement} container
  */
 export async function renderSimulatePage(container) {
+  const content = await renderAppShell(container, { title: 'Simulasi Pinjam', active: 'simulate' });
+
   let debts = [];
   try {
     debts = await getAllDebts();
@@ -29,20 +31,8 @@ export async function renderSimulatePage(container) {
   const currentCommitment = getMonthlyCommitment(debts);
   const currentRatio = income ? computeRatio(currentCommitment, income) : null;
 
-  container.innerHTML = `
-    <header class="app-header">
-      <div class="container flex justify-between items-center">
-        <div class="brand-logo" id="logo-simulate" style="cursor: pointer;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-          </svg>
-          ${STRINGS.APP_NAME}
-        </div>
-        <button type="button" class="btn btn--secondary btn--sm" id="btn-back-sim">← Dashboard</button>
-      </div>
-    </header>
-
-    <main class="container mt-4 mb-12" style="max-width: 560px;">
+  content.innerHTML = `
+    <div style="max-width: 560px;">
       <div class="card mb-6">
         <h2 class="section-title" style="text-align:left;">🧮 Mau Pinjam Lagi?</h2>
         <p class="text-secondary mb-4" style="font-size: var(--font-size-sm);">
@@ -67,13 +57,13 @@ export async function renderSimulatePage(container) {
       </div>
 
       <div id="sim-result"></div>
-    </main>
+    </div>
   `;
 
-  const receivedInput = container.querySelector('#sim-received');
-  const installmentInput = container.querySelector('#sim-installment');
-  const tenorInput = container.querySelector('#sim-tenor');
-  const resultEl = container.querySelector('#sim-result');
+  const receivedInput = content.querySelector('#sim-received');
+  const installmentInput = content.querySelector('#sim-installment');
+  const tenorInput = content.querySelector('#sim-tenor');
+  const resultEl = content.querySelector('#sim-result');
 
   const maskCurrency = (input) => {
     const parsed = parseRupiah(input.value);
@@ -164,9 +154,4 @@ export async function renderSimulatePage(container) {
   });
   tenorInput.addEventListener('input', renderResult);
 
-  const goDashboard = () => {
-    window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/dashboard' } }));
-  };
-  container.querySelector('#logo-simulate').addEventListener('click', goDashboard);
-  container.querySelector('#btn-back-sim').addEventListener('click', goDashboard);
 }

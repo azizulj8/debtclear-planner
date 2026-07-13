@@ -1,4 +1,4 @@
-import { STRINGS } from '../data/strings.js';
+import { renderAppShell } from '../components/AppShell.js';
 import { AUDIT_PROVIDERS, isProviderRecorded } from '../data/auditProviders.js';
 import { getAllDebts } from '../utils/storage.js';
 
@@ -9,6 +9,8 @@ import { getAllDebts } from '../utils/storage.js';
  * @param {HTMLElement} container
  */
 export async function renderAuditPage(container) {
+  const content = await renderAppShell(container, { title: 'Audit Utang', active: 'audit' });
+
   let debts = [];
   try {
     debts = await getAllDebts();
@@ -46,20 +48,8 @@ export async function renderAuditPage(container) {
     `;
   }).join('');
 
-  container.innerHTML = `
-    <header class="app-header">
-      <div class="container flex justify-between items-center">
-        <div class="brand-logo" id="logo-audit" style="cursor: pointer;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-          </svg>
-          ${STRINGS.APP_NAME}
-        </div>
-        <button type="button" class="btn btn--secondary btn--sm" id="btn-audit-done">Selesai →</button>
-      </div>
-    </header>
-
-    <main class="container mt-4 mb-12" style="max-width: 640px;">
+  content.innerHTML = `
+    <div style="max-width: 640px;">
       <div class="card mb-6">
         <h2 class="section-title" style="text-align:left;">🔍 Audit Utangmu</h2>
         <p class="text-secondary" style="font-size: var(--font-size-sm);">
@@ -85,16 +75,10 @@ export async function renderAuditPage(container) {
           <button type="button" class="btn btn--primary btn--sm" id="btn-audit-other">⚡ Catat</button>
         </div>
       </div>
-    </main>
+    </div>
   `;
 
-  const goDashboard = () => {
-    window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/dashboard' } }));
-  };
-  container.querySelector('#logo-audit').addEventListener('click', goDashboard);
-  container.querySelector('#btn-audit-done').addEventListener('click', goDashboard);
-
-  container.querySelectorAll('.audit-record-btn').forEach(btn => {
+  content.querySelectorAll('.audit-record-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const name = btn.getAttribute('data-name');
       window.dispatchEvent(new CustomEvent('navigate', {
@@ -103,7 +87,7 @@ export async function renderAuditPage(container) {
     });
   });
 
-  container.querySelector('#btn-audit-other').addEventListener('click', () => {
+  content.querySelector('#btn-audit-other').addEventListener('click', () => {
     window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/quick-add?from=audit' } }));
   });
 }

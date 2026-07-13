@@ -1,4 +1,5 @@
 import { STRINGS } from '../data/strings.js';
+import { renderAppShell } from '../components/AppShell.js';
 import { formatRupiah, parseRupiah } from '../utils/format.js';
 import { deriveDebtFromQuickAdd } from '../utils/quickAdd.js';
 import { findProviderPreset } from '../data/auditProviders.js';
@@ -10,7 +11,9 @@ import { addDebt } from '../utils/storage.js';
  * interest rate and obligation are derived automatically.
  * @param {HTMLElement} container
  */
-export function renderQuickAddPage(container) {
+export async function renderQuickAddPage(container) {
+  const content = await renderAppShell(container, { title: 'Catat Cepat', active: 'debts' });
+
   const urlParams = new URLSearchParams(window.location.search);
   const prefillName = urlParams.get('name') || '';
   // Numeric prefills, e.g. arriving from the borrow simulation
@@ -21,8 +24,8 @@ export function renderQuickAddPage(container) {
   // After saving/cancel, return to the audit checklist when we came from it
   const backPath = fromAudit ? '/audit' : '/dashboard';
 
-  container.innerHTML = `
-    <div class="container mt-4 mb-4" style="max-width: 560px;">
+  content.innerHTML = `
+    <div style="max-width: 560px;">
       <div class="card debt-form-card">
         <h2 class="section-title" style="text-align:left;">⚡ Catat Cepat Pinjaman</h2>
         <p class="text-secondary mb-4" style="font-size: var(--font-size-sm);">
@@ -77,12 +80,12 @@ export function renderQuickAddPage(container) {
     </div>
   `;
 
-  const nameInput = container.querySelector('#qa-name');
-  const receivedInput = container.querySelector('#qa-received');
-  const installmentInput = container.querySelector('#qa-installment');
-  const tenorInput = container.querySelector('#qa-tenor');
-  const dueDateInput = container.querySelector('#qa-due-date');
-  const preview = container.querySelector('#qa-preview');
+  const nameInput = content.querySelector('#qa-name');
+  const receivedInput = content.querySelector('#qa-received');
+  const installmentInput = content.querySelector('#qa-installment');
+  const tenorInput = content.querySelector('#qa-tenor');
+  const dueDateInput = content.querySelector('#qa-due-date');
+  const preview = content.querySelector('#qa-preview');
 
   const maskCurrency = (input) => {
     const parsed = parseRupiah(input.value);
@@ -118,25 +121,25 @@ export function renderQuickAddPage(container) {
   // Show the preview immediately when values were prefilled
   updatePreview();
 
-  container.querySelector('#qa-cancel').addEventListener('click', () => {
+  content.querySelector('#qa-cancel').addEventListener('click', () => {
     window.dispatchEvent(new CustomEvent('navigate', { detail: { path: backPath } }));
   });
 
-  container.querySelector('#qa-full-form').addEventListener('click', (e) => {
+  content.querySelector('#qa-full-form').addEventListener('click', (e) => {
     e.preventDefault();
     window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/add-debt' } }));
   });
 
-  container.querySelector('#quick-add-form').addEventListener('submit', async (e) => {
+  content.querySelector('#quick-add-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     // Clear previous errors
-    container.querySelectorAll('.form-error').forEach(s => (s.textContent = ''));
-    container.querySelectorAll('.form-input').forEach(i => i.classList.remove('input-error'));
+    content.querySelectorAll('.form-error').forEach(s => (s.textContent = ''));
+    content.querySelectorAll('.form-input').forEach(i => i.classList.remove('input-error'));
 
     const setError = (field, msg) => {
-      container.querySelector(`#qa-err-${field}`).textContent = msg;
-      container.querySelector(`#qa-${field}`).classList.add('input-error');
+      content.querySelector(`#qa-err-${field}`).textContent = msg;
+      content.querySelector(`#qa-${field}`).classList.add('input-error');
     };
 
     const name = nameInput.value.trim();
@@ -156,7 +159,7 @@ export function renderQuickAddPage(container) {
     if (hasError || !derived) return;
 
     try {
-      const btnSave = container.querySelector('#qa-save');
+      const btnSave = content.querySelector('#qa-save');
       btnSave.disabled = true;
       btnSave.textContent = 'Menyimpan...';
 
@@ -177,7 +180,7 @@ export function renderQuickAddPage(container) {
     } catch (err) {
       console.error('Failed to quick-add debt:', err);
       alert('Terjadi kesalahan saat menyimpan data.');
-      const btnSave = container.querySelector('#qa-save');
+      const btnSave = content.querySelector('#qa-save');
       btnSave.disabled = false;
       btnSave.textContent = 'Simpan';
     }

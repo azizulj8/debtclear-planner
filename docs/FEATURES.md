@@ -166,7 +166,9 @@ DebtClear Planner adalah aplikasi perencana pelunasan utang personal untuk pasar
 
 ## 8. UI / UX
 
-- Tiga halaman utama (routing di `src/main.js`): **Landing Page**, **Dashboard**, dan **Pricing**.
+- **App shell bergaya finance-dashboard** (`src/components/AppShell.js`): sidebar kiri fixed dengan menu ber-ikon + top bar fixed (judul halaman, akun/sync, tema di footer sidebar). Di mobile, sidebar jadi drawer dengan burger + overlay.
+- **Fitur diakses per menu** (routing di `src/main.js`): Dashboard (ringkasan: Takar + kartu statistik + aksi cepat), Tagihan (`/bills`), Utang Saya (`/debts`, termasuk import CSV), Strategi (`/strategy`, termasuk export PDF), Audit Utang, Simulasi Pinjam, Upgrade Pro — plus halaman form (catat cepat, tambah/edit, detail) yang juga dibungkus shell.
+- **Landing Page** tetap standalone sebagai halaman marketing.
 - Tema **gelap/terang** (default gelap), tersimpan di `localStorage`.
 - Semua teks UI berbahasa Indonesia, terpusat di `src/data/strings.js`; format mata uang Rupiah (`src/utils/format.js`).
 - Desain "banking/crypto aesthetic" dengan efek glow, header tetap saat scroll, dan layout responsif.

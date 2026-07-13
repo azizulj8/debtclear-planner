@@ -69,6 +69,13 @@ DebtClear Planner adalah aplikasi perencana pelunasan utang personal untuk pasar
 - **Tagihan gabungan** (Kredivo, GoPay Later, dll.): semua pinjaman aktif di provider yang sama tampil sebagai **satu baris tagihan dengan satu checkbox** (`src/utils/billGrouping.js`) — mencentang membayar semuanya sekaligus, sesuai cara provider menagih. Rincian per pinjaman bisa di-expand.
 - **Autodebit** (kartu kredit, KTA bank): bahasa berubah — baris tagihan berbunyi "pastikan saldo cukup", dan reminder Android menjadi "💳 Besok Autodebit! Pastikan saldo cukup…".
 - Penautan provider otomatis: Quick-Add mencocokkan nama ke preset, dan **backfill sekali jalan** menautkan utang lama yang namanya cocok (`backfillProviderIds`). Bisa juga dipilih manual di form lengkap.
+- Rincian grup menampilkan **total "Lunasi semua sekarang"** — jumlah sisa kewajiban seluruh pinjaman di provider tersebut (Kredivo mewajibkan pelunasan sekaligus).
+
+### 1.12 Simulasi "Mau Pinjam Lagi?"
+- Halaman `/simulate` (`src/pages/SimulatePage.js`, tombol di kartu Takar) — momen intervensi **sebelum** menekan "Ajukan" di aplikasi pinjol.
+- Input penawaran dalam bahasa pinjol (terima berapa, bayar per bulan, berapa kali) → dampak langsung: **tagihan bulanan sekarang → nanti**, biaya pinjaman (total bayar + bunga ≈ %/thn), dan **rasio sekarang → nanti** dengan chip zona.
+- Peringatan bertingkat: masuk zona Bahaya (>50%) dan cicilan melebihi penghasilan (🛑).
+- Dua jalan keluar: "👍 Tidak jadi pinjam" (CTA utama) atau "Tetap pinjam & catat" yang membuka Quick-Add dengan semua angka ter-prefill.
 
 ---
 

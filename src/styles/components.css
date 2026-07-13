@@ -646,3 +646,28 @@
   border-left: 2px solid var(--color-border);
   margin-top: var(--spacing-1);
 }
+
+.bill-group-item--total {
+  color: var(--color-text);
+  border-left-color: var(--color-primary);
+  border-top: 1px dashed var(--color-border);
+  padding-top: var(--spacing-2);
+}
+
+/* Borrow Simulation */
+.sim-metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  padding: var(--spacing-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sim-metric:last-of-type {
+  border-bottom: none;
+}
+
+.sim-metric__label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}

@@ -1,9 +1,11 @@
 import { formatRupiah } from '../utils/format.js';
 import { groupBillsByProvider } from '../utils/billGrouping.js';
+import { getRemainingObligation } from '../utils/obligation.js';
 import {
   getAllDebts,
   getMonthKey,
   getPaymentsByMonth,
+  getPaymentCountsPerDebt,
   markBillPaid,
   unmarkBillPaid,
 } from '../utils/storage.js';
@@ -42,12 +44,19 @@ export function renderMonthlyBills(container, debts, onChange) {
     }
 
     let payments = [];
+    let paymentCounts = new Map();
     try {
       payments = await getPaymentsByMonth(monthKey);
+      paymentCounts = await getPaymentCountsPerDebt();
     } catch (err) {
       console.error('Failed to load payments:', err);
     }
     const paidByDebtId = new Map(payments.map(p => [p.debtId, p]));
+
+    // Remaining obligation of a debt; static principal as fallback
+    // for debts without tenor
+    const remainingOf = d =>
+      getRemainingObligation(d, paymentCounts.get(d.id) || 0) ?? d.principal;
 
     // Show active debts, plus paid-off debts that have a payment recorded
     // in the viewed month (so history stays visible and un-checkable)
@@ -118,6 +127,10 @@ export function renderMonthlyBills(container, debts, onChange) {
                     <span>${formatRupiah(d.minPayment)}</span>
                   </div>
                 `).join('')}
+                <div class="bill-group-item bill-group-item--total">
+                  <span>💰 Lunasi semua sekarang (wajib sekaligus)</span>
+                  <span class="font-bold">${formatRupiah(row.debts.reduce((s, d) => s + remainingOf(d), 0))}</span>
+                </div>
               </details>
             </div>
             <span class="bill-row__amount font-bold ${isPaid ? 'text-secondary' : ''}">${formatRupiah(row.total)}</span>

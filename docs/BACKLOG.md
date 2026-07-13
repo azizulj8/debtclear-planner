@@ -31,7 +31,7 @@ Form capture 15 detik dengan 3 field sesuai cara pinjol berkomunikasi:
 ## Next
 
 ### 5. Provider sebagai Entitas (Grouping & Aturan Tagihan) — ✅ SHIPPED 12 Jul 2026
-*(Catatan: aturan pelunasan-dini di mesin Snowball/Avalanche belum — menunggu keputusan produk soal fitur "lunasi semua sekaligus".)*
+*(Termasuk total "lunasi semua sekarang" per provider gabungan. Aturan pelunasan-dini di mesin Snowball/Avalanche masih belum — kandidat penyempurnaan berikutnya.)*
 Unit pencatatan = pinjaman, unit tagihan = provider. Tiap provider punya aturan berbeda:
 - **Cara menagih:** gabungan (Kredivo: semua pinjaman aktif terakumulasi jadi 1 tagihan bulanan) vs per-pinjaman (SPayLater: tiap pinjaman berdiri sendiri).
 - **Cara bayar:** autodebit (kartu kredit — reminder berubah jadi "pastikan saldo cukup H-1"; konfirmasi "terpotong sukses/gagal", bukan checkbox bayar) vs manual.
@@ -39,7 +39,7 @@ Unit pencatatan = pinjaman, unit tagihan = provider. Tiap provider punya aturan 
 - Panel Tagihan Bulan Ini di-group by provider; provider gabungan = satu baris + satu checkbox, expand untuk rincian.
 - Provider **opsional** (utang tanpa provider jalan seperti sekarang) dan pakai **preset** (Kredivo, SPayLater, Akulaku, dll.) — bukan didefinisikan manual. Daftar preset dipakai ulang untuk checklist Audit Utang (#4).
 
-### 6. Simulasi "Mau Pinjam Lagi?"
+### 6. Simulasi "Mau Pinjam Lagi?" — ✅ SHIPPED 12 Jul 2026
 - Input nominal & tenor pinjaman baru → tampilkan dampak: rasio naik jadi berapa %, tagihan bulan depan jadi berapa.
 - Momen intervensi sebelum keputusan pinjam — differentiator utama vs aplikasi pinjol.
 - Bergantung pada #1 (rasio) dan #3 (parameter pinjol mudah dimasukkan).

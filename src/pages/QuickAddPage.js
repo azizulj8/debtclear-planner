@@ -13,6 +13,10 @@ import { addDebt } from '../utils/storage.js';
 export function renderQuickAddPage(container) {
   const urlParams = new URLSearchParams(window.location.search);
   const prefillName = urlParams.get('name') || '';
+  // Numeric prefills, e.g. arriving from the borrow simulation
+  const prefillReceived = parseInt(urlParams.get('received'), 10) || 0;
+  const prefillInstallment = parseInt(urlParams.get('installment'), 10) || 0;
+  const prefillTenor = parseInt(urlParams.get('tenor'), 10) || 0;
   const fromAudit = urlParams.get('from') === 'audit';
   // After saving/cancel, return to the audit checklist when we came from it
   const backPath = fromAudit ? '/audit' : '/dashboard';
@@ -34,19 +38,19 @@ export function renderQuickAddPage(container) {
 
           <div class="form-group">
             <label class="form-label" for="qa-received">Uang yang kamu terima (Rp)</label>
-            <input type="text" id="qa-received" class="form-input text-right" placeholder="Rp 1.000.000" inputmode="numeric" />
+            <input type="text" id="qa-received" class="form-input text-right" placeholder="Rp 1.000.000" inputmode="numeric" value="${prefillReceived > 0 ? formatRupiah(prefillReceived) : ''}" />
             <span class="form-error" id="qa-err-received"></span>
           </div>
 
           <div class="grid-2 gap-4">
             <div class="form-group">
               <label class="form-label" for="qa-installment">Bayar per bulan (Rp)</label>
-              <input type="text" id="qa-installment" class="form-input text-right" placeholder="Rp 410.000" inputmode="numeric" />
+              <input type="text" id="qa-installment" class="form-input text-right" placeholder="Rp 410.000" inputmode="numeric" value="${prefillInstallment > 0 ? formatRupiah(prefillInstallment) : ''}" />
               <span class="form-error" id="qa-err-installment"></span>
             </div>
             <div class="form-group">
               <label class="form-label" for="qa-tenor">Berapa kali bayar?</label>
-              <input type="number" id="qa-tenor" class="form-input" placeholder="3" min="1" max="600" inputmode="numeric" />
+              <input type="number" id="qa-tenor" class="form-input" placeholder="3" min="1" max="600" inputmode="numeric" value="${prefillTenor > 0 ? prefillTenor : ''}" />
               <span class="form-error" id="qa-err-tenor"></span>
             </div>
           </div>
@@ -111,6 +115,8 @@ export function renderQuickAddPage(container) {
     });
   });
   tenorInput.addEventListener('input', updatePreview);
+  // Show the preview immediately when values were prefilled
+  updatePreview();
 
   container.querySelector('#qa-cancel').addEventListener('click', () => {
     window.dispatchEvent(new CustomEvent('navigate', { detail: { path: backPath } }));

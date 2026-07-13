@@ -92,10 +92,17 @@ export function renderIncomeRatio(container, debts) {
         <p class="text-secondary mt-3" style="font-size: var(--font-size-xs);">
           Cicilan ${formatRupiah(commitment)} / bln dari penghasilan ${formatRupiah(income)} · hijau &lt;30% · kuning 30–50% · merah &gt;50%
         </p>
+
+        <button type="button" class="btn btn--secondary btn--sm mt-3" id="btn-simulate" style="width:100%;">
+          🧮 Mau pinjam lagi? Cek dampaknya dulu
+        </button>
       </div>
     `;
 
     container.querySelector('#income-edit').addEventListener('click', () => render(true));
+    container.querySelector('#btn-simulate').addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/simulate' } }));
+    });
   };
 
   render();
